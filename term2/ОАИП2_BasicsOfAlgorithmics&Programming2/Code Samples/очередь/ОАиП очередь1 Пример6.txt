@@ -1,0 +1,171 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+/* Создать очередь из натуральных чисел до N. 
+Вывести на экран. */
+
+struct FIFO {
+	int data;
+	struct FIFO *next;
+	struct FIFO *prev;
+};
+
+void create(struct FIFO **, struct FIFO **, int);  
+void print(struct FIFO *); 
+void two_to_one(struct FIFO * tail1,struct FIFO * head2, struct FIFO **head, struct FIFO ** tail);
+
+int main() {
+	int i, n, a;
+	struct FIFO *head1;    
+	head1 = NULL;
+	struct FIFO *tail1;    
+	tail1 = NULL;
+	head1=tail1;
+
+	struct FIFO *head2;    
+	head2 = NULL;
+	struct FIFO *tail2;    
+	tail2 = NULL;
+	head2=tail2;
+
+	scanf("%d", &n);
+	for (i = 0; i <n; i++) 
+	{
+		fflush(stdin);
+		if (!(scanf("%d", &a)))
+		{
+			i--;
+			printf ("Input error, try again\n");
+		}
+		else{
+		if(tail1!=NULL)
+			if(a>tail1->data)	
+				create(&head1, &tail1, a);
+			else 
+			{
+				i--;
+				printf ("Input error, try again\n");
+			}
+		else create(&head1, &tail1, a);
+		}
+	}
+	printf("\n");
+	print(head1);
+	printf("\n");
+
+	scanf("%d", &n);
+	for (i = 0; i <n; i++) 
+	{
+		fflush(stdin);
+		if (!(scanf("%d", &a)))
+		{
+			i--;
+			printf ("Input error, try again\n");
+		}
+		else{
+		if(tail2!=NULL)
+			if(a<tail2->data)	
+				create(&head2, &tail2, a);
+			else 
+			{
+				i--;
+				printf ("Input error, try again\n");
+			}
+		else create(&head2, &tail2, a);
+		}
+	}
+
+	
+	printf("\n");
+	print(head2);
+	printf("\n");
+	
+	struct FIFO *head3;    
+	head3 = NULL;
+	struct FIFO *tail3;    
+	tail3 = NULL;
+	head3=tail3;
+
+	two_to_one(tail1, head2, &head3,&tail3);
+	print(head3);
+
+	free(head1);
+	free(head2);
+	free(head3);
+	free(tail1);
+	free(tail2);
+	free(tail3);
+}
+
+void create(struct FIFO **head, struct FIFO **tail, int x) {
+	struct FIFO *n;    
+	n = (struct FIFO *)malloc(sizeof(struct FIFO)); 
+	n->next = NULL;
+	n->data = x;
+	n->prev = NULL;
+	if (*head == NULL)	
+	{
+		*head = n;
+		*tail = n;
+	}
+	else
+	{	
+		n->prev=(*tail);
+		(*tail)->next=n;
+		*tail=n;
+	}
+	
+}
+
+void print(struct FIFO *head){
+	struct FIFO *p = head;
+	while (p != NULL) 
+	{   
+		printf("%4d", p->data);
+		p = p->next;
+	}
+	printf("\n");
+}
+
+void two_to_one(struct FIFO * tail1,struct FIFO * head2, struct FIFO **head, struct FIFO ** tail)
+{
+	struct FIFO *p1=tail1;
+	struct FIFO *p2=head2;
+
+	while(p1!=NULL && p2!=NULL)
+	{
+		if(p1->data >= p2->data)
+		{
+			create(head, tail, p1->data);
+			p1=p1->prev;
+		}
+		else
+		{
+			create(head, tail, p2->data);
+			p2=p2->next;
+		}
+	}
+
+	if (p1==NULL && p2!=NULL)
+	{
+		while (p2!=NULL)
+		{
+			create(head, tail, p2->data);
+			p2=p2->next;
+		}
+	}
+
+	if (p2==NULL && p1!=NULL)
+	{
+		while (p1!=NULL)
+		{
+			create(head, tail, p1->data);
+			p1=p1->prev;
+		}
+	}
+}
+

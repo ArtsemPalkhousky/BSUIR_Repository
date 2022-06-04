@@ -1,0 +1,123 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+struct FIFO {
+	int data;
+	struct FIFO *next;
+};
+struct FIFO * create(struct FIFO *, int);
+//void create(struct FIFO **, struct FIFO **, int);  
+//struct FIFO *pop (struct FIFO *);
+void pop(struct FIFO **, struct FIFO **);
+void print(struct FIFO *); // просмотр очереди
+
+int main() {
+	int i, a, k;
+	struct FIFO *head;    
+	head = NULL;
+	struct FIFO *tail;    
+	tail = NULL;
+	head=tail;
+
+	while (scanf("%d", &a))
+	{
+		
+		//create(&head, &tail, i);
+		tail=create(tail,a);
+		if (head== NULL)
+			head=tail;
+		printf("%2d ---> ", tail->data);
+	}
+	printf("\n");
+	print(head);
+
+	fflush(stdin);
+	scanf("%d", &k);
+	for (i=0;i<k;i++)
+	{
+		pop(&head,&tail);
+		/*head=pop(head);
+		if (head==NULL)
+			tail=NULL;*/
+	}
+	printf("\n");
+	print(head);
+	free(head);
+}
+
+struct FIFO * create(struct FIFO *tail, int x) {
+	struct FIFO *n;    // указатель на новую структуру
+	n = (struct FIFO *)malloc(sizeof(struct FIFO)); // выделяем память
+	n->next = NULL;
+	n->data = x;
+	if (tail == NULL)	
+	{
+		tail= n;
+	}
+	else
+	{
+		tail->next=n;
+		tail=n;
+	}
+	return tail;
+}
+
+//void create(struct FIFO **head, struct FIFO **tail, int x) {
+//	struct FIFO *n;    // указатель на новую структуру
+//	n = (struct FIFO *)malloc(sizeof(struct FIFO)); // выделяем память
+//	n->next = NULL;
+//	n->data = x;
+//	if (*head == NULL)	
+//	{
+//		*head = n;
+//		*tail = n;
+//	}
+//	else
+//	{
+//		(*tail)->next=n;
+//		*tail=n;
+//	}
+//	
+//}
+
+
+void print(struct FIFO *head){
+	struct FIFO *p = head;
+	while (p != NULL) {      
+		printf("%2d ---> ", p->data);
+		p = p->next;       // продвижение по списку
+	}
+	printf("\n");
+}
+
+//struct FIFO *pop(struct FIFO * head)
+//{
+//	if (head != NULL)
+//	{
+//		head = head->next;
+//		return head;
+//	}
+//	else return NULL;
+//
+//}
+
+void pop(struct FIFO **head, struct FIFO ** tail)
+{
+	if (*head != NULL)
+	{
+		*head = (*head)->next;
+		
+	}
+	else 
+	{
+		*tail=NULL;
+	}
+
+}
+

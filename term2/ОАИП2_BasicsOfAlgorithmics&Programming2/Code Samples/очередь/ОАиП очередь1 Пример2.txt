@@ -1,0 +1,100 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+struct FIFO {
+	int data;
+	struct FIFO *next;
+};
+struct FIFO * create(struct FIFO *, int);
+//void create(struct FIFO **, struct FIFO **, int);  
+void print(struct FIFO *); // просмотр очереди
+int sum(struct FIFO *head);
+
+int main() {
+	int i, a;
+	struct FIFO *head;    // адрес, указывающий на голову очереди
+	head = NULL;
+	struct FIFO *tail;    // адрес, указывающий на хвост очереди
+	tail = NULL;
+	head=tail;
+
+	while (scanf("%d", &a))
+	{
+		
+		//create(&head, &tail, a);
+		tail=create(tail,a);
+		if (head== NULL)
+			head=tail;
+		
+	}
+	
+	printf("\n");
+	print(head);
+	
+	int S=sum(head);
+	free(head);
+}
+
+struct FIFO * create(struct FIFO *tail, int x) {
+	struct FIFO *n;    // указатель на новую структуру
+	n = (struct FIFO *)malloc(sizeof(struct FIFO)); // выделяем память
+	n->next = NULL;
+	n->data = x;
+	if (tail == NULL)	
+	{
+		tail= n;
+	}
+	else
+	{
+		tail->next=n;
+		tail=n;
+	}
+	return tail;
+}
+
+//void create(struct FIFO **head, struct FIFO **tail, int x) {
+//	struct FIFO *n;    // указатель на новую структуру
+//	n = (struct FIFO *)malloc(sizeof(struct FIFO)); // выделяем память
+//	n->next = NULL;
+//	n->data = x;
+//	if (*head == NULL)	
+//	{
+//		*head = n;
+//		*tail = n;
+//	}
+//	else
+//	{
+//		(*tail)->next=n;
+//		*tail=n;
+//	}
+//	
+//}
+
+
+void print(struct FIFO *head){
+	struct FIFO *p = head;
+	while (p != NULL) {   // пока не конец очереди    
+		printf("%2d ---> ", p->data);
+		p = p->next;       // продвижение по списку
+	}
+	printf("\n");
+}
+
+int sum(struct FIFO *head)
+{
+	struct FIFO *p = head;
+	int s = 0;
+	while (p != NULL) {   // пока не конец стека    
+		s += p->data;
+		p = p->next;       // продвижение по списку
+	}
+	return s;
+}
+
+

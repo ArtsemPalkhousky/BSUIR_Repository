@@ -1,0 +1,88 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+/* Создать очередь из натуральных чисел до N. 
+Вывести на экран. */
+
+struct FIFO {
+	int data;
+	struct FIFO *next;
+};
+struct FIFO * create(struct FIFO *, int);
+//void create(struct FIFO **, struct FIFO **, int);  
+void print(struct FIFO *); // просмотр очереди
+
+int main() {
+	int i, n;
+	struct FIFO *head;    // адрес, указывающий на голову 
+	head = NULL;
+	struct FIFO *tail;    // адрес, указывающий на хвост
+	tail = NULL;
+	head=tail;
+
+	scanf("%d", &n);
+	for (i = 1; i <= n; i++) {
+		
+		//create(&head, &tail, i);
+		tail=create(tail,i);
+		if (head== NULL)
+			head=tail;
+		
+	}
+	
+	printf("\n");
+	print(head);
+	free(head);
+}
+
+struct FIFO * create(struct FIFO *tail, int x) {
+	struct FIFO *n;    // указатель на новую структуру
+	n = (struct FIFO *)malloc(sizeof(struct FIFO)); // выделяем память
+	n->next = NULL;
+	n->data = x;
+	if (tail == NULL)	
+	{
+		tail= n;
+	}
+	else
+	{
+		tail->next=n;
+		tail=n;
+	}
+	return tail;
+}
+
+//void create(struct FIFO **head, struct FIFO **tail, int x) {
+//	struct FIFO *n;    // указатель на новую структуру
+//	n = (struct FIFO *)malloc(sizeof(struct FIFO)); // выделяем память
+//	n->next = NULL;
+//	n->data = x;
+//	if (*head == NULL)	
+//	{
+//		*head = n;
+//		*tail = n;
+//	}
+//	else
+//	{
+//		(*tail)->next=n;
+//		*tail=n;
+//	}
+//	
+//}
+
+
+void print(struct FIFO *head){
+	struct FIFO *p = head;
+	while (p != NULL) {   // пока не конец очереди    
+		printf("%2d ---> ", p->data);
+		p = p->next;       // продвижение по списку
+	}
+	printf("\n");
+}
+
+
+
