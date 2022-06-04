@@ -1,0 +1,88 @@
+#include "file.h"
+#include <fstream>
+
+template <typename F>
+class bin_file : public File
+{
+protected:
+	ifstream i_file;
+	ofstream o_file;
+public:
+	bin_file(string name = "");
+	~bin_file();
+	bool open_file_in();
+	bool open_file_out();
+	bool open_file_add();
+	void remote();
+	void write_in(F& ob);
+	bool read_in(F& ob);
+	void close_file_i();
+	void close_file_o();
+};
+
+template<typename F>
+inline bin_file<F>::bin_file(string name) : File(name)
+{
+
+}
+
+template<typename F>
+inline bin_file<F>::~bin_file()
+{
+
+}
+
+template<typename F>
+inline bool bin_file<F>::open_file_in()
+{
+	i_file.open(file_name, ios_base::in | ios_base::binary);
+	if (i_file.is_open()) return true;
+	else return false;
+}
+
+template<typename F>
+inline bool bin_file<F>::open_file_out()
+{
+	o_file.open(file_name, ios_base::out | ios_base::trunc | ios_base::binary);
+	if (o_file.is_open()) return true;
+	else return false;
+}
+
+template<typename F>
+inline bool bin_file<F>::open_file_add()
+{
+	stream_file.open(file_name, ios_base::app | ios_base::binary);
+	if (stream_file.is_open()) return true;
+	else return false;
+}
+
+template<typename F>
+inline void bin_file<F>::remote()
+{
+	stream_file.clear();
+	stream_file.seekg(0);
+}
+
+template<typename F>
+inline void bin_file<F>::write_in(F& ob)
+{
+	o_file << ob;
+}
+
+template<typename F>
+inline bool bin_file<F>::read_in(F& ob)
+{
+	if (i_file >> ob) return true;
+	else return false;
+}
+
+template<typename F>
+inline void bin_file<F>::close_file_o()
+{
+	o_file.close();
+}
+template<typename F>
+inline void bin_file<F>::close_file_i()
+{
+	i_file.close();
+}

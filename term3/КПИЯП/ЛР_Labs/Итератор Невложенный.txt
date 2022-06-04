@@ -1,0 +1,199 @@
+#pragma once
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include "Excep_Stack.h"
+#include "COMPUTER.h"
+#include "monoblock.h"
+#include "server.h"
+#include "smartphone.h"
+#include "laptop.h"
+using namespace std;
+
+template<typename T>
+struct Node {
+	T data;
+	Node<T>* next;
+};
+
+template<typename T>
+class Stack {
+protected:
+	template<typename T> friend class Iterator;
+	Node<T>* head;
+	long amount;
+public:
+	Stack()
+	{
+		head = nullptr;
+		amount = 0;
+	}
+	~Stack()
+	{
+		while (head){
+			this->pop();
+		}
+	}
+	void push(T input_object);
+	T pop();
+	long size();
+	void output();
+	T& operator[](long num);
+	void sort();
+	Node<T>* begin();
+	Node<T>* end();
+};
+
+template<typename T>
+void Stack<T>::push(T input_object)
+{
+	Iterator<T> i = this->begin();
+	Iterator<T> j = this->end();
+	if (i == j) {
+		head = new Node<T>;
+		head->data = input_object;
+		head->next = nullptr;
+		amount++;
+		return;
+	}
+	*i = input_object;
+	i++;
+	amount++;
+	return;
+}
+
+template<typename T>
+T Stack<T>::pop()
+{
+	if (!(head)) {
+		cout << "Cтек пуст" << endl;
+		return T();
+	}
+	T data = head->data;
+	Node<T>* node = head;
+	head = head->next;
+	delete node;
+	amount--;
+	return data;
+}
+
+template<typename T>
+long Stack<T>::size()
+{
+	return this->amount;
+}
+
+template<typename T>
+void Stack<T>::output()
+{
+	if (head == nullptr) {
+		StackException::IsEmpty();
+		return;
+	}
+	else {
+		for (Node<T>* node = head; node != nullptr; node = node->next) {
+			cout << node->data;
+		}
+	}
+}
+
+template<typename T>
+void Stack<T>::sort()
+{
+	Node<T>* cur = head;
+	while (cur->next) {
+		if ((cur->data.getBrand()) > (cur->next->data.getBrand())) {
+			T temp = cur->next->data;
+			cur->next->data = cur->data;
+			cur->data = temp;
+			cur = cur->next;
+			sort();
+		}
+		else {
+			cur = cur->next;
+		}
+	}
+}
+
+template <typename T>
+T& Stack<T>::operator[](long num)
+{
+	Node<T>* curr = head;
+	num = StackException::checkOutOfRange(amount, num);
+	for (int i = 0; i < num; i++)
+		curr = curr->next;
+	return curr->data;
+}
+
+template <typename T>
+Node<T>* Stack<T>::begin()
+{
+	return head;
+}
+
+template <typename T>
+Node<T>* Stack<T>::end()
+{
+	return nullptr;
+}
+
+template <typename T>
+class Iterator
+{
+	Node<T>* current;
+public:
+	Iterator()
+	{
+		current = nullptr;
+	}
+	Iterator(Stack<T>& container)
+	{
+		current = container.head;
+	}
+	Iterator(Iterator<T>& iter)
+	{
+		current = iter.current;
+	}
+	Iterator(Node<T>* node)
+	{
+		current = node;
+	}
+	~Iterator() { }
+
+	Node<T>* get_node();
+	Iterator<T> operator++(int i);
+	T& operator*();
+	bool operator==(Iterator& iter);
+	bool operator!=(Iterator& iter);
+};
+
+template<typename T>
+Node<T>* Iterator<T>::get_node()
+{
+	return current;
+}
+
+template<typename T>
+Iterator<T> Iterator<T>::operator++(int i)
+{
+	current = current->next;
+	return *this;
+}
+
+template <typename T>
+T& Iterator<T>::operator*()
+{
+	return current->data;
+}
+
+template <typename T>
+bool Iterator<T>::operator == (Iterator<T>& iter) 
+{
+	return this->current == iter.current;
+}
+
+template <typename T>
+bool Iterator<T>::operator!=(Iterator& iter)
+{
+	return this->current != iter.current;
+}

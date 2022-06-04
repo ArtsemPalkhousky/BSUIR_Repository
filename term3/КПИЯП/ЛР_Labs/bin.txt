@@ -1,0 +1,36 @@
+std::fstream& operator>>(fstream& in, ECA& object) {
+	char* buf_str;
+	size_t lenght = 0;
+	in.read(reinterpret_cast<char*>(&(object.serial_number)), sizeof(object.serial_number));
+	in.read(reinterpret_cast<char*>(&(object.price)), sizeof(object.price));
+	in.read(reinterpret_cast<char*>(&(object.memory)), sizeof(object.memory));
+	in.read(reinterpret_cast<char*>(&(object.cores)), sizeof(object.cores));
+	in.read(reinterpret_cast<char*>(&(object.year)), sizeof(object.year));
+	in.read(reinterpret_cast<char*>(&lenght), sizeof(lenght));
+	buf_str = new char[lenght];
+	in.read(buf_str, lenght);
+	object.eca_name = new char[lenght];
+	strcpy(object.eca_name, buf_str);
+	in.read(reinterpret_cast<char*>(&lenght), sizeof(lenght));
+	buf_str = new char[lenght];
+	in.read(buf_str, lenght);
+	object.brand_name = new char[lenght];
+	strcpy(object.brand_name, buf_str);
+	return in;
+}
+
+std::fstream& operator<<(fstream& out, ECA& object) {
+	size_t lenght;
+	out.write(reinterpret_cast<char*>(&(object.serial_number)), sizeof(object.serial_number));
+	out.write(reinterpret_cast<char*>(&(object.price)), sizeof(object.price));
+	out.write(reinterpret_cast<char*>(&(object.memory)), sizeof(object.memory));
+	out.write(reinterpret_cast<char*>(&(object.cores)), sizeof(object.cores));
+	out.write(reinterpret_cast<char*>(&(object.year)), sizeof(object.year));
+	lenght = strlen(object.eca_name) + 1;
+	out.write(reinterpret_cast<char*>(&lenght), sizeof(lenght));
+	out.write(reinterpret_cast<char*>(object.eca_name), lenght);
+	lenght = strlen(object.brand_name) + 1;
+	out.write(reinterpret_cast<char*>(&lenght), sizeof(lenght));
+	out.write(reinterpret_cast<char*>(object.brand_name), lenght);
+	return out;
+}
