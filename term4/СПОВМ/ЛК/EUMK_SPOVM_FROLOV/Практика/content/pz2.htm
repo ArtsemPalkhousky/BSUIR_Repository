@@ -1,0 +1,1263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//RU">
+<!-- saved from url=(0172)file:///D:/StudFiles/ERUD/%D0%A0%D0%B0%D0%B1%D0%BE%D1%87%D0%B0%D1%8F%20%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F/%D0%9F%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0/content/pz2.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+
+<meta http-equiv="Content-Language" content="ru">
+<title>Практическое занятие №2: Диспетчеризация процессов и потоков. </title>
+<!--<base target="_top">--><base href="." target="_top">
+</head><body>
+<h2 style="text-align: center;"><em>Практическое занятие №2: Диспетчеризация процессов и потоков. </em></h2>
+<ul>
+<li><em><strong>Планирование – это организация работы параллельных процессов таким образом, когда они как можно реже конфликтуют из-за имеющихся в системе ресурсов </strong></em></li>
+<li><em><strong>При долгосрочном планировании планировщик решает, какой из процессов, находящихся во входной очереди, должен быть переведен в очередь готовых процессов в случае освобождения ресурсов памяти. В современных ОС может отсутствовать. (планирование задач)</strong></em></li>
+<li><em><strong>При краткосрочном (динамическом) планировании планировщик решает, какая из задач в очереди готовых должна быть передана на исполнение. Краткосрочное планирование называется диспетчеризацией. (распределение процессорного времени - потоки) </strong></em></li>
+<li><em><strong>Планировщик должен решать задачу эффективного использования процессора, поскольку переключение контекста требует затрат: переключение в режим ядра, сохранение состояния текущего процесса, карту памяти (признаки обращения к страницам памяти), запуск следующего процесса, а также перезагрузка кэша </strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Диспетчеризация процессов и потоков</em></h2>
+<ul>
+<ul>
+<li><em><strong>Все процессы можно разделить на 2 большие группы: </strong></em></li>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<ul>
+<ul>
+<li><em><strong>процессы, занятые в основном вычислениями, и изредка требующими операций ввода-вывода (ограниченные возможностями процессора)</strong></em></li>
+<li><em><strong>процессы, большую часть времени ожидающими ввода-вывода (ограниченные возможностями устройств в/в)</strong></em></li>
+</ul>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><em><strong>С увеличением быстродействия процессоров, процессы все более смещаются в сторону задач, ограниченных возможностями устройств в/в</strong></em></li>
+</ul>
+<ul>
+<li><em><strong>Планирование необходимо в следующих случаях : </strong></em></li>
+<ul>
+<li><em><strong>Создание нового процесса. Требуется принять решение, какой процесс – родительский или дочерний запускать </strong></em></li>
+<li><em><strong>Завершение процесса. Необходимо выбрать из очереди готовых процессов </strong></em></li>
+<li><em><strong>При блокировке процесса. Требуется выбор, какой процесс следующий</strong></em></li>
+<ul>
+<li><em><strong>Причина блокировки может влиять на выбор. Если А – высокоприоритетный процесс, и он блокируется в ожидании выхода процесса В из КС, то можно запустить процесс В, чтобы быстрее продолжил работу А </strong></em></li>
+</ul>
+<li><em><strong>При прерывании в/в. Если прерывание пришло от устройства, завершившего операцию, можно запустить процесс, ожидающий именно этого устройства </strong></em></li>
+</ul>
+</ul>
+<h2 style="page-break-before: always;"><em>Стратегия планирования и дисциплина диспетчеризации</em></h2>
+<ul>
+<li><em><strong>Стратегия планирования определяет каким образом следует выбирать процессы в очереди, чтобы достичь оптимальной эффективности при выполнении параллельных процессов : </strong></em></li>
+<ul>
+<li><em><strong>по возможности процессы завершаются в том же самом порядке, в каком они были начаты </strong></em></li>
+<li><em><strong>отдавать предпочтение коротким процессам </strong></em></li>
+<li><em><strong>всем процесса предоставлять одинаковое время ожидания</strong></em></li>
+</ul>
+<li><em><strong>Дисциплина диспетчеризации – совокупность правил, в соответствии с которыми формируется очередь готовых к выполнению задач</strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Невытесняющая многозадачность</em></h2>
+<ul>
+<ul>
+<li><em><strong>Невытесняющая многозадачность. Процесс после выбора на исполнение работает вплоть до блокировки или пока сам не отдаст управление другому процессу</strong></em></li>
+<li><em><strong>Используются алгоритмы планирования без переключений </strong></em></li>
+<li><em><strong>Управление системой может теряться на некоторый (в общем случае на достаточно большой) период времени</strong></em></li>
+<li><em><strong>Передача управления ложится на программиста</strong></em></li>
+<ul>
+<li><em><strong>это время в значительной мере зависит от степени эффективной передачи управления иным процессам</strong></em></li>
+</ul>
+</ul>
+</ul>
+<h2>&nbsp;<em>Вытесняющая многозадачность</em></h2>
+<ul>
+<li><em><strong>Вытесняющая многозадачность. Переключение между задачами выполняется принудительно средствами ОС. </strong></em></li>
+<li><em><strong>Используются алгоритмы планирования с переключениями</strong></em></li>
+<li><em><strong>Процесс выбирается и ему предоставляется какое-то количество времени. Если за этот отрезок процесс не завершил работы, он приостанавливается, и запускается другой процесс </strong></em></li>
+<li><em><strong>Механизм диспетчеризации целиком сосредоточен в ОС</strong></em></li>
+<li><em><strong>С программиста снимается обязанность о передаче управления другим процессам системы: он может программировать задачу так, как если бы задача запускалась в однопроцессной системе</strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Критерии сравнения алгоритмов диспетчеризации</em></h2>
+<ul>
+<li><em><strong>Загрузка центрального процессора </strong></em></li>
+<ul>
+<li><em><strong>В большинстве персональных систем средняя загрузка процессора не превышает 2-3%, на серверах – до 20-40%</strong> </em></li>
+</ul>
+<li><em><strong>Пропускная способность: количество выполненных процессов за единицу времени</strong></em></li>
+<li><em><strong>Среднее полное время выполнения (оборота): время от момента появления процесса во входной очереди до его завершения </strong></em></li>
+<ul>
+<li><em><strong>включает в себя время ожидания во входной очереди, время ожидания в очереди готовых процессов, время ожидания устройств вв, время выполнения</strong> </em></li>
+</ul>
+<li><em><strong>Среднее время ожидания: суммарное время нахождения процесса в очереди готовых процессов</strong> </em></li>
+<li><em><strong>Среднее время отклика: время, прошедшее от момента поступления команды до получения результата</strong> </em></li>
+<ul>
+<li><em><strong>для интерактивных программ является важным показателем</strong></em></li>
+</ul>
+</ul>
+<h2 style="page-break-before: always;"><em>Цели алгоритмов диспетчеризации</em></h2>
+<p><em><strong>Выбор конкретного алгоритма определяется классом решаемых задач и целями, которых стараются достичь:</strong></em></p>
+<ul>
+<li><em><strong>Справедливость: гарантия того, что каждому процессу будет предоставлена определенная часть времени процессора, причем без возникновения ситуации голодовки </strong></em></li>
+<li><em><strong>Эффективность. Процессор должен быть максимально нагружен. В идеале на 100%</strong></em></li>
+<li><em><strong>Сокращение полного времени выполнения</strong></em></li>
+<li><em><strong>Сокращение времени ожидания</strong></em></li>
+<li><em><strong>Сокращение времени отклика</strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Свойства алгоритмов диспетчеризации</em></h2>
+<p><em><strong>желательно, чтобы алгоритмы обладали следующими свойствами :</strong></em></p>
+<ul>
+<li><em><strong>предсказуемость: одно и то же задание должно выполняться примерно за одинаковое время </strong></em></li>
+<li><em><strong>минимизация накладных расходов, т.е. времени на выбор очередного процесса, переключение контекста и т.д. </strong></em></li>
+<li><em><strong>равномерная загрузка ресурсов системы</strong></em></li>
+<li><em><strong>масштабируемость: сохранение характеристик работоспособности алгоритма при увеличении нагрузки <span style="text-decoration: underline;">(O(f(x)) and o(f(x)))</span></strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Классификация дисциплин диспетчеризации</em></h2>
+<p><em><strong>По типу оптимизации под конкретный класс задач :</strong></em></p>
+<p><img src="../images/pz2_1.gif" width="888" height="346"></p>
+<p><img src="../images/pz2_2.gif" width="888" height="537"></p>
+<h2 style="page-break-before: always;"><em>Диспетчеризация FCFS</em></h2>
+<ul>
+  <ul>
+<li><em><strong>самый простой вариант</strong></em></li>
+<li><em><strong>невытесняющие алгоритмы (без переключений)</strong></em></li>
+<li><em><strong>задачи обслуживаются в том порядке, в котором они возникли</strong></em></li>
+<li><em><strong>формируется общая очередь задач</strong></em></li>
+<li><em><strong>задачи, которые были заблокированы в процессе выполнения, после окончания ожидания (блокировки) ставятся в очередь перед теми процессами, которые еще не выполнялись либо в конец очереди</strong></em></li>
+<li><em><strong>реализуется стратегия завершения процессов в том порядке, в котором они были начаты</strong></em></li>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><em><strong>дисциплина не требует внешнего вмешательства в процесс вычислений</strong></em></li>
+<li><em><strong>не происходит перераспределение процессорного времени</strong></em></li>
+<li><em><strong>достаточно просто реализуются</strong></em></li>
+<li><em><strong>требует малых затрат на реализацию очереди задач</strong></em></li>
+<li><em><strong>при увеличении нагрузки на систему, среднее время ожидания обслуживания возрастает</strong></em></li>
+<li><em><strong>короткие задачи ожидают столько же, сколько и длинные</strong></em></li>
+</ul>
+<table style="height: 207px;" border="1" width="469">
+<tbody>
+<tr>
+<td>
+<p><strong>Процесс</strong></p>
+</td>
+<td>
+<p><strong>Т вып.</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>Т ож.</strong></p>
+</td>
+<td>
+<p><strong>T вып. полн.</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>А</strong></p>
+</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>
+<p><strong>13&nbsp;</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>0</strong></p>
+</td>
+<td>
+<p><strong>13+0 = 13</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>В</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>4 &nbsp;</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>13 = 13</strong></p>
+</td>
+<td>
+<p><strong>4+13 = 17</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>С</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>13+4 =17</strong></p>
+</td>
+<td>
+<p><strong>1+17 = 18</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Среднее</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>(0+13+17)/3=10 </strong></p>
+</td>
+<td>
+<p><strong>(13+17+18)/3=16</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="height: 207px;" border="1" width="469">
+<tbody>
+<tr>
+<td>
+<p><strong>Процесс</strong></p>
+</td>
+<td>
+<p><strong>Т вып.</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>Т ож.</strong></p>
+</td>
+<td>
+<p><strong>T вып. полн.</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>А</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td>
+<p><strong>4 &nbsp;&nbsp;</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>0</strong></p>
+</td>
+<td>
+<p><strong>4+0 = 4</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>В</strong></p>
+</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp; &nbsp;&nbsp;</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>4 = 4 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</strong></p>
+</td>
+<td>
+<p><strong>13+4 = 17 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>С</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>4+13 =17</strong></p>
+</td>
+<td>
+<p><strong>1+17 = 18</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Среднее</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>(0+4+17)/3=7 </strong></p>
+</td>
+<td>
+<p><strong>(4+17+18)/3=13</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><em><strong>среднее время выполнения и ожидания зависят от порядка расположения процессов</strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Диспетчеризация SJN</em></h2>
+<table style="height: 207px;" width="465" border="1">
+<tbody>
+<tr>
+<td>
+<p><strong>Процесс</strong></p>
+</td>
+<td>
+<p><strong>Т вып.</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>Т ож.</strong></p>
+</td>
+<td>
+<p><strong>T вып. полн.</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>А</strong></p>
+</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp; &nbsp;</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>
+<p><strong>1+4 = 5 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</strong></p>
+</td>
+<td>
+<p><strong>13+5 = 18 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>В</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp; &nbsp;&nbsp;</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>1 = 1</strong></p>
+</td>
+<td>
+<p><strong>4+1 = 5</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>С</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>0</strong></p>
+</td>
+<td>
+<p><strong>1+0 = 1</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Среднее</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>(5+1+0)/3=2 </strong></p>
+</td>
+<td>
+<p><strong>(18+5+1)/3=8</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<ul>
+<li><em><strong>заблокированные в процессе выполнения задачи попадают в конец очереди готовых к выполнению задач</strong></em></li>
+<li><em><strong>невытесняющая </strong></em></li>
+<li><em><strong>до выполнения должна быть известна оценка потребностей в машинном времени</strong></em></li>
+<ul>
+<li><em><strong>это привело к появлению соответствующих языков</strong></em></li>
+<li><em><strong> JCL (job control language)</strong></em></li>
+<li><em><strong>указывалось предполагаемое время, чтобы не было явно заниженных оценок, использовался подсчет реальных потребностей</strong></em></li>
+<li><em><strong>диспетчер сравнивал заявленное время и расчетное, и если оценка явно занижалась, задача попадала не в начало, а в конец очереди</strong></em></li>
+</ul>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<h2 style="page-break-before: always;"><em>Диспетчеризация SRT</em></h2>
+<ul>
+<li><em><strong>развитие алгоритма SJN</strong></em></li>
+<li><em><strong>невытесняющая</strong> </em></li>
+<li><em><strong>в отличие от SJN, после блокировки задача может попасть в начало очереди, если для завершения требует минимум времени</strong></em></li>
+<li><em><strong>при поступлении новой задачи ее время выполнения сравнивается с оставшимся временем до завершения текущей задачи, и если пришедшая задача короче, текущий процесс останавливается, а управление переходит новой задаче</strong></em></li>
+</ul>
+<table style="height: 248px; border-color: #000000;" border="1" width="679">
+<tbody>
+<tr>
+<td>
+<p><strong>Процесс</strong></p>
+</td>
+<td>
+<p><strong>Т вып.</strong></p>
+</td>
+<td>
+<p><strong>Т возн.</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>Т ож.</strong></p>
+</td>
+<td>
+<p><strong>T вып. полн.</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>А</strong></p>
+</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td style="background-color: #808000;">&nbsp;</td>
+<td style="background-color: #808000;">&nbsp;</td>
+<td style="background-color: #808000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>
+<p><strong>8</strong></p>
+</td>
+<td>
+<p><strong>13+8 = 21</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>В</strong></p>
+</td>
+<td>
+<p><strong>7</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>2</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>5</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>5</strong></p>
+</td>
+<td>
+<p><strong>7+5 = 12</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>C</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+<td style="background-color: #808000;">&nbsp;</td>
+<td style="background-color: #808000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>0</strong></p>
+</td>
+<td>
+<p><strong>4+0 = 4</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>D</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>0</strong></p>
+</td>
+<td>
+<p><strong>1+0 = 1</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Среднее</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>3,25 </strong></p>
+</td>
+<td>
+<p><strong>9,5</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<h2 style="page-break-before: always;"><em>Трехуровневое планирование</em></h2>
+<ul>
+<li><em><strong>По мере поступления новые задачи сначала помещаются в очередь на диске. Планировщик выбирает задание и передает его системе, остальные остаются в очереди. При этом может быть использован любой алгоритм выбора задачи из очереди. 1 уровень</strong></em></li>
+<li><em><strong>Попав в систему, для задачи запускается соответствующий процесс, и он конкурирует за доступ к процессору. При большом количестве процессов часть из них сбрасывается на диск. Планировщик памяти решает, какие из процессов сбросить, а какие оставить. 2 уровень </strong></em></li>
+<li><em><strong>Третий уровень планирования отвечает собственно за доступ процессов к процессору (краткосрочное планирование, диспетчеризация)</strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Классификация дисциплин диспетчеризации</em></h2>
+<p style="page-break-before: always;"><img src="../images/pz2_3.gif" width="910" height="525"></p>
+<h2 style="page-break-before: always;"><em>Циклическое планирование (Robin Round)</em></h2>
+<ul>
+<li><em><strong>наиболее распространенный алгоритм диспетчеризации</strong></em></li>
+<li><em><strong>каждый процесс получает время порциями (квантами)</strong></em></li>
+<li><em><strong>после окончания выделенного кванта времени (или при блокировке процесса), задача снимается с выполнения и запускается следующая</strong></em></li>
+<li><em><strong>снятая задача ставится в конец очереди готовых задач </strong></em></li>
+<li><em><strong>величина кванта влияет на производительность</strong></em></li>
+</ul>
+<table style="height: 207px;" border="1" width="450">
+<tbody>
+<tr>
+<td>
+<p><strong>Процесс</strong></p>
+</td>
+<td>
+<p><strong>Т вып.</strong></p>
+</td>
+<td colspan="3">
+<p><strong>Квант = 3</strong></p>
+&nbsp;&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>Т ож.</strong></p>
+</td>
+<td>
+<p><strong>Т в.п.</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>А</strong></p>
+</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>3 &nbsp;</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>5</strong></p>
+</td>
+<td>
+<p><strong>18</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>В</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>7</strong></p>
+</td>
+<td>
+<p><strong>11</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>С</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>6</strong></p>
+</td>
+<td>
+<p><strong>7</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Среднее</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>6</strong></p>
+</td>
+<td>
+<p><strong>12</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="height: 220px;" border="1" width="449">
+<tbody>
+<tr>
+<td>
+<p><strong>Процесс</strong></p>
+</td>
+<td>
+<p><strong>Т вып.</strong></p>
+</td>
+<td colspan="5">
+<p><strong>Квант = 1</strong></p>
+&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>
+<p><strong>А</strong></p>
+</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>5</strong></p>
+</td>
+<td>
+<p><strong>18</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>В</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>5</strong></p>
+</td>
+<td>
+<p><strong>9</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>С</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>2</strong></p>
+</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Среднее</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td>
+<p><strong>10</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<ul>
+<li><em><strong>При малом кванте:</strong></em></li>
+<ul>
+<li><em><strong>уменьшается среднее время ожидания и среднее полное время выполнения</strong></em></li>
+<li><em><strong>высокая реакция системы </strong></em></li>
+<li><em><strong>частая смена контекста снижает производительность</strong></em></li>
+</ul>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<ul>
+<li><em><strong>при большом кванте:</strong></em></li>
+<ul>
+<li><em><strong>может увеличиваться среднее время ожидания и среднее полное время выполнения</strong></em></li>
+<li><em><strong>высокая производительность</strong></em></li>
+<li><em><strong>значительно снижается реакция системы </strong></em></li>
+</ul>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><em><strong>Требуется компромисс</strong></em></li>
+</ul>
+<ul>
+<li><em><strong>В некоторых ОС величина кванта указывается явно</strong></em></li>
+<li><em><strong>OS/2</strong></em></li>
+<ul>
+<li><em><strong>переменная TIMESLICE в системном файле конфигурации, которая позволяет указывать минимальную и максимальную величину кванта</strong></em></li>
+<li><em><strong>если процесс прервался из-за окончания кванта времени, то новый выделяемый ему квант будет увеличен на время одного периода таймера</strong></em></li>
+<li><em><strong>так до тех пор, пока она не сравняется с максимальной</strong></em></li>
+</ul>
+<li><em><strong>Это позволяет эффективнее распределять время для длительных задач</strong> </em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Гарантированное и справедливое планирование</em></h2>
+<ul>
+<ul>
+<li><em><strong>Гарантированное планирование</strong></em></li>
+<ul>
+<li><em><strong>гарантируется предоставление процессу определенной доли процессорного времени</strong></em></li>
+</ul>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><em><strong>Справедливое</strong></em></li>
+<ul>
+<li><em><strong>большинство стратегий не учитывают, что многие процессы могут быть созданы одним и тем же пользователем</strong></em></li>
+<li><em><strong>кто создал больше процессов, тот и получит большую долю процессорного времени</strong></em></li>
+<li><em><strong>при планировании учитывается владелец процесса</strong> </em></li>
+</ul>
+</ul>
+<h2 style="page-break-before: always;"><em>Лотерейное планирование</em></h2>
+<ul>
+<li><em><strong>Процессам предоставляются “лотерейные билеты” на доступ к различным ресурсам, в т.ч. и к процессору</strong></em></li>
+<li><em><strong>Когда планировщику необходимо принять решение, случайным образом выбирается лотерейный билет, и его обладатель получает доступ</strong></em></li>
+<li><em><strong>Для важных процессов раздается больше лотерейных билетов, повышая шанс на выигрыш</strong></em></li>
+<li><em><strong>Каждый процесс в среднем получает такую долю ресурса, какая доля билетов у него находится</strong></em></li>
+<li><em><strong>Взаимодействующие процессы могут обмениваться лотерейными билетами</strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Классификация дисциплин диспетчеризации</em></h2>
+<p style="page-break-before: always;"><img src="../images/pz2_4.gif" width="912" height="337"></p>
+<h2 style="page-break-before: always;"><em>Приоритетное планирование</em></h2>
+<ul>
+<li><em><strong>В случае бесприоритетного обслуживания выбор задачи производится без учета их относительной важности и времени обслуживания</strong></em></li>
+<li><em><strong>В случае с приоритетом у каждой задачи есть приоритет, в зависимости от которого она с большей или меньшей частотой (вероятностью) попадает на выполнение</strong></em></li>
+<li><em><strong>Фиксированный приоритет - если приоритеты задач не изменяются со временем</strong></em></li>
+<ul>
+<li><em><strong>В общем случае не гарантирует обслуживания процесса</strong></em></li>
+<li><em><strong>Часто используются в ОС реального времени</strong></em></li>
+</ul>
+<li><em><strong>Динамический приоритет – приоритеты задач изменяются в процессе их выполнения</strong></em></li>
+<ul>
+<li><em><strong>Требует дополнительных временных затрат на расчет приоритетов</strong></em></li>
+<li><em><strong>Обеспечивает гарантированное обслуживание процесса</strong></em></li>
+</ul>
+</ul>
+<h2 style="page-break-before: always;"><em>Фиксированные приоритеты</em></h2>
+<table border="1">
+<tbody>
+<tr>
+<td>
+<p><strong>Процесс</strong></p>
+</td>
+<td>
+<p><strong>Т вып.</strong></p>
+</td>
+<td>
+<p><strong>Приоритет</strong></p>
+</td>
+<td>
+<p><strong>Т возн.</strong></p>
+</td>
+<td colspan="4">
+<p><strong>Квант 2</strong></p>
+&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>Т ож.</strong></p>
+</td>
+<td>
+<p><strong>T вып. полн.</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>А</strong></p>
+</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td style="background-color: #ff0000;">&nbsp;</td>
+<td style="background-color: #ff0000;">&nbsp;</td>
+<td style="background-color: #ff0000;">&nbsp;</td>
+<td>
+<p><strong>2</strong></p>
+</td>
+<td>
+<p><strong>11</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>0</strong></p>
+</td>
+<td>
+<p><strong>13+0 = 13</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>В</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>2</strong></p>
+</td>
+<td>
+<p><strong>19</strong></p>
+</td>
+<td>
+<p><strong>4+19 = 23</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>C</strong></p>
+</td>
+<td>
+<p><strong>2</strong></p>
+</td>
+<td>
+<p><strong>2</strong></p>
+</td>
+<td>
+<p><strong>3</strong></p>
+</td>
+<td style="background-color: #ff0000;">&nbsp;</td>
+<td style="background-color: #ff0000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>13</strong></p>
+</td>
+<td>
+<p><strong>2+13 = 15</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>D</strong></p>
+</td>
+<td>
+<p><strong>4</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>1</strong></p>
+</td>
+<td>
+<p><strong>2</strong></p>
+</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td style="background-color: #008000;">&nbsp;</td>
+<td>
+<p><strong>2</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>17</strong></p>
+</td>
+<td>
+<p><strong>4+17 = 21</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Среднее</strong></p>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>
+<p><strong>12,25 </strong></p>
+</td>
+<td>
+<p><strong>18</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<h2 style="page-break-before: always;"><em>Использование динамических приоритетов</em></h2>
+<ul>
+<ul>
+<li><em><strong>Часто используется две составляющих приоритета </strong></em></li>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<ul>
+<ul>
+<li><em><strong>заданная жестко при создании процесса</strong></em></li>
+<li><em><strong>формируемая диспетчером задач, и изменяемая в зависимости от текущей ситуации</strong></em></li>
+</ul>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<ul>
+<li><em><strong>Чтобы высокоприоритетные процессы не работали постоянно, не предоставляя время низкоприоритетным, периодически, как правило по прошествии каждого кванта, приоритет процесса снижается</strong></em></li>
+<li><em><strong>Ядро периодически пересчитывает текущие приоритеты процессов, готовых к запуску, увеличивая их</strong></em></li>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><em><strong>В итоге приоритет текущего процесса оказывается меньше, чем у одного из очереди, и происходит переключение</strong></em></li>
+</ul>
+<ul>
+<li><em><strong>При динамическом назначении приоритетов для процессов, активно использующих устройства в/в, т.е. требующих мало процессорного времени, приоритет может выбираться как 1/f, где f – часть использованного времени кванта, т.е. если процесс использовал 1/10 часть кванта, то приоритет назначается 10, если 1/25, то 25. </strong></em></li>
+<li><em><strong>Часто удобно группировать приоритеты по классам, используя приоритетное планирование между классами, но циклическое внутри класса </strong></em></li>
+<ul>
+<li><em><strong>Пока в классе с высшими приоритетами есть задачи, они запускаются согласно циклическому планированию</strong></em></li>
+<li><em><strong>Если их нет, обрабатывается очередь процессов более низкого приоритета</strong></em></li>
+</ul>
+<li><em><strong>Средства для изменения приоритета процесса</strong> <strong>имеются</strong> в<strong>о всех ОС</strong></em></li>
+</ul>
+<h2 style="page-break-before: always;"><em>Динамические приоритеты</em></h2>
+<ul>
+<ul>
+<li><em><strong>Многоуровневые очереди с обратной связью</strong></em></li>
+<ul>
+<li><em><strong>Развитие систем с динамическим приоритетом</strong></em></li>
+</ul>
+<li><em><strong>Задачи разбиваются на классы приоритетов. Для каждого класса назначается свой квант времени. </strong></em></li>
+<ul>
+<li><em><strong>Например, класс с наивысшим приоритетом имеет квант, равный 8. Следующий по приоритетности класс – 16, следующий – 32, и последний класс обслуживается не циклически, а в порядке очереди</strong></em></li>
+</ul>
+<li><em><strong>Задача изначально поступает в класс с максимальным приоритетом. </strong></em></li>
+<li><em><strong>Если процесс отработал эти кванты и требует еще времени, он переводится в менее приоритетный класс</strong></em></li>
+<li><em><strong>Если и там ему не хватило времени, то в еще менее приоритетный класс</strong></em>&nbsp;</li>
+</ul>
+</ul>
+<ul>
+<li><em><strong>Чем длиннее процесс, тем в более низкий по приоритету класс он попадет</strong></em></li>
+<li><em><strong>Для таких задач время ожидания увеличивается, но зато увеличивается и количество предоставляемых квантов</strong></em></li>
+<li><em><strong>При завершении ожидания (например, от устройств в/в) процессы могут помещаться в более приоритетный класс задач</strong> </em></li>
+</ul>
+<p align="center"><strong>Контрольные вопросы и задачи</strong></p>
+<ul>
+<li><em><strong>1) Перечислите и поясните основные функции операционных систем,которые связаны с управлением задачами. </strong></em></li>
+<li><em><strong>2) В чем заключается основное различие между планированием процессов и диспетчеризацией задач? </strong></em></li>
+<li><em><strong>3) Что такое стратегия обслуживания? Перечислите известные вам стратегии обслуживания.</strong></em></li>
+<li><em><strong>4) Какие дисциплины диспетчеризации задач вы знаете? Поясните их основные идеи, перечислите достоинства и недостатки. </strong></em></li>
+<li><em><strong>5) Расскажите, какие дисциплины диспетчеризации следует отнести к вытесняющим, а какие — к невытесняющим. </strong></em></li>
+<li><em><strong>6) Как можно реализовать механизм разделения времени,если диспетчер задач работает только по принципу предоставления процессорного времени задаче с максимальным приоритетом? </strong></em></li>
+<li><em><strong>7) Что такое «гарантия обслуживания»? Как ее можно реализовать? </strong></em></li>
+<li><em><strong>8) Опишите механизм динамической диспетчеризации, реализованный в UNIX-системах. </strong></em></li>
+<li><em><strong>9) Сравните механизмы диспетчеризации задач в операционных системах Windows NT и OS/2. В чем они похожи друг на друга и в чем заключаются основные различия? </strong></em></li>
+</ul></p>
+
+
+</body></html>

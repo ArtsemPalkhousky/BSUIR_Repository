@@ -1,0 +1,711 @@
+<!-- (C) 2011-2012 V.Prytkov, V. Suponev, A.Uvarov. BSUIR -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//RU">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1251">
+<META HTTP-EQUIV="Content-Language" CONTENT="ru">
+<link rel="stylesheet" type="text/css" href="../css/style.css" />
+<title>Лекция №6. Типовые  механизмы синхронизации.</title>
+<base target="_top">
+</HEAD><BODY>
+  <p align="center"><strong>Типовые  механизмы синхронизации</strong></p>
+  <p><em>Операции </em><em>Test</em><em> &amp; </em><em>Set</em><em>.  Поддержка механизма </em><em>TS</em><em> в  современных процессорах. Семафоры Дейкстры. Базовые операции над семафорами.  Мьютексы. Задача &ldquo;поставщик-потребитель&rdquo;. Поддержка механизмов синхронизации в </em><em>Windows</em><em> и </em><em>UNIX</em><em>.  Мониторы Хоара. Поддержка мониторов в языках программирования. Задача о парикмахерской.  Задача &ldquo;читатели-писатели&rdquo;</em></p>
+  <p><strong>Операция &ldquo;Проверка и установка&rdquo;</strong> является аппаратным механизмом организации  взаимного исключения.&nbsp; В IBM360&nbsp;  эта команда называлась TS (Test &amp; Set). Команда имеет два операнда и выполняется  следующим образом. Значение второго операнда присваивается первому, после этого  второй операнд устанавливается в единицу. Особенность команды в том, что она  является неделимой, т.е. оба эти действия выполняются неразрывно. Для  возможности использования этой операции требуется одна общая переменная,  доступная всем процессам. Переменная должна принимать значение 1, если  какой-либо процесс находится в своей критической области. Кроме того, с каждым  из процессов связана еще и своя персональная переменная, устанавливаемая в 1,  если процесс хочет войти в критическую секцию. TS будет использоваться так: значение общей  переменной будет считываться в локальную и устанавливаться в 1.</p>
+  <p><em>int </em><em>common</em><em>=0; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  глобальная переменная</em></p>
+  <p><em>#</em><em>define </em><em>PROC</em><em>_</em><em>NUM</em><em> 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  0 &ndash; для 1 процесса, 1 &ndash; для второго</em></p>
+  <p><em>void </em><em>process</em><em>(</em><em>void</em><em>)</em><br />
+    <em>{</em><em>int </em><em>proc</em><em>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  персональная переменная запроса</em><br />
+    <em>while</em><em>(1)</em><br />
+    <em>{</em><em>proc</em><em>=1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //запрос  на вхождение в критическую секцию</em><br />
+    <em>while</em><em>(</em><em>proc</em><em>==1) </em><em>TS</em><em>(</em><em>proc</em><em>, </em><em>common</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //пока  запрос не обслужен, выполняется операция </em><em>TS</em><br />
+    <em>critical</em><em>_</em><em>section</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //выполнение  критического интервала</em><br />
+    <em>common</em><em>=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //флаг,  что в критической секции нет процесса</em><br />
+    <em>non</em><em>_</em><em>critical</em><em>_</em><em>section</em><em>();}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //дальнейшие  действия</em></p>
+  <p>Происходит  следующее. Допустим, что в критической секции процесса нет. В этом случае все  переменные равны 0. Первый процесс хочет получить доступ к критическому  ресурсу. Он выставляет флаг. Операция TS  выполняет proc=common, common=1, т.е. поскольку common была 0, то фактически запрос снимается, флаг входа в КС  устанавливается, процесс выходит из цикла и входит в КС. Допустим, что в этот  момент процесс 2 устанавливает свой флаг. Он входит в цикл, TS выполняет proc=common, common=1.  Поскольку Common и так  уже в 1, т.е. в КС находится другой процесс, то запрос не снимается, так же как  и сам флаг не изменяет значения. Процесс2 ожидает в цикле. Теперь процесс1  выходит из КС и снимает флаг. Процесс2 в очередной раз выполняет TS, поскольку common=0, то запрос снимается, флаг входа в КС  устанавливается, процесс выходит из цикла и входит в КС. </p>
+  <p>В  современных микропроцессорах есть специальные команды, являющиеся  разновидностью TS: BTC, BTS, BTR. BTS (bit test &amp; set) также имеет два операнда: <strong>BTS</strong><strong> </strong><strong>Op</strong><strong>, </strong><strong>B</strong>.  Процессор сохраняет бит с номером В переменной Op во флаге CF (carry - перенос), и устанавливает бит B переменной Op в 1. В качестве номера бита может быть  указан регистр процессора, в котором этот номер хранится. Этот индекс берется  по модулю 32, т.е. использует только 5 младших бит числа, соответственно индекс  находится в диапазоне 0 &ndash; 31, что позволяет выбрать любой бит в пределах 4-байтной  переменной или регистра. </p>
+  <p><em>L</em><em>: &nbsp; </em><em>BTS </em><em>m</em><em>, 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;  бит 1 глобальной переменной </em><em>m</em><em> &ndash; флаг  нахождения в КС какого либо процесса</em><br />
+    <em>JC </em><em>L</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;  пока в ней есть процесс, ожидание; флаг переноса выступает в качестве локальной  переменной</em><br />
+    <em>CALL </em><em>critical</em><em>_</em><em>section</em><br />
+    <em>AND </em><em>m</em><em>, 0</em><em>fffffffeh</em><em> ; сброс флага нахождения в критической секции</em></p>
+  <p>Однако  и у этой операции имеется тот недостаток, что ожидающий процесс находится в  состоянии активного ожидания, т.е. фактически в холостую простаивает в цикле,  потребляя процессорное время. По сути, процессы, обнаружив, что доступ к  критическому ресурсу закрыт, должны перейти в состояние блокировки, а как  только ресурс освободится, иметь возможность выйти из нее для использования  ресурса. Очевидно, что если процесс при ожидании ресурса не должен использовать  процессорное время, то сам он не сможет выйти из этого состояния, и требуются  соответствующие механизмы ОС.</p>
+  <p>Команда  ВТR Op, B  выполняет полностью аналогичные действия, но бит В сбрасывается в 0. Команда BTC Op, B инвертирует  значение бита В. Обе эти команды сохраняют прежнее значение бита во флаге  переноса.</p>
+  <p>Существует  и еще одна проблема при использовании TS или  алгоритма Петерсона. Это <strong>проблема  инверсии приоритетов</strong>. Пусть имеется 2 процесса: Н с высоким приоритетом и L с низким, которым требуется один и тот же  ресурс. Планировщик в этом случае немедленно запускает процесс Н, если тот  оказался в состоянии ожидания. Допустим, процесс L находится в критической области. В этот  момент Н попадает в состояние ожидания. Планировщик запускает его, но поскольку  ресурс занят процессом L, то  процесс H  остается в состоянии активного ожидания. Однако процесс L не может завершить критическую секцию,  т.к. ему не будет предоставлено время, соответственно Н останется в активном  ожидании.</p>
+  <p><strong>Семафоры Дейкстры</strong>. Понятие семафоров было введено Дейкстрой.  Семафор S &ndash; это  переменная специального типа, доступная параллельным процессам для проведения  над ней только двух неделимых операций: закрытия P(S) и  открытия V(S). Поскольку эти операции неделимы, то они  исключают друг друга. Семафорный механизм работает по следующей схеме: вначале  исследуется состояние критического ресурса, определяемое значением семафора. В  зависимости от результата происходит или предоставление ресурса или ожидание  доступа в очереди в режиме &ldquo;пассивного ожидания&rdquo;. В состав механизма включаются  специальные средства формирования и обслуживания очереди ожидающих процессов  ОС. В силу неделимости операций, даже если некоторые процессы одновременно  захотят использовать критический ресурс, доступ получит только один, а второй  будет помещен в очередь. Процессам из очереди не предоставляется процессорное  время, пока ресурс занят. Допустимыми значениями семафоров являются целые  числа. Семафор называется двоичным, если максимальное значение, которое он  может принять, это 1. Если больше, то семафор &ndash; N-ричный. Рассмотрим пример реализации.  Допустим, семафор S  инициализируется ОС в значение 1. Тогда операции P и V имеют вид:</p>
+  <p><em>void </em><em>P</em><em> (</em><em>int</em><em> *</em><em>S</em><em>)</em><br />
+    <em>{(*</em><em>S</em><em>)--;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  закрытие семафора и доступа</em><br />
+    <em>if</em><em> (*</em><em>S</em><em>&lt;0) </em><em>block</em><em>_</em><em>process</em><em>();}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  если семафор уже был закрыт, поместить в очередь блокировки</em></p>
+  <p><em>void </em><em>V</em><em> (</em><em>int</em><em> *</em><em>S</em><em>)</em><br />
+    <em>{</em><em>if</em><em> (*</em><em>S</em><em>&lt;0) </em><em>activate</em><em>_</em><em>process</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  если есть очередь блокировки, поставить процесс на готовность</em><br />
+    <em>&nbsp;(*</em><em>S</em><em>)++;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  открыть семафор</em></p>
+  <p>Сами  процессы будут иметь вид:</p>
+  <p><em>void process(void)</em><br />
+    <em>{while(1)</em><br />
+    <em>{P(&amp;S);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //</em><em>установка</em><em>семафора</em><br />
+    <em>&nbsp;critical</em><em>_</em><em>section</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //или  операция успешна или процесс взят из очереди</em><br />
+    <em>V(&amp;S);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //</em><em>восстановление</em><em>семафора</em><br />
+    <em>non_critical_section();}}</em></p>
+  <p>Пусть  оба процесса пытаются выполнить P(S), и это успешно удается второму процессу.  Он устанавливает семафор в 0 и переходит к выполнению КС. Тем временем процесс  1 пытается выполнить P(S). Он устанавливает семафор в &ndash;1, и помещается  ОС в очередь ожидания. Процесс 2 выполняет КС, и вызывает V(S).  Поскольку семафор&lt;0, т.е. есть очередь, то процесс 1 выводится из очереди и  переходит к выполнению КС. Тем временем процесс 2 восстанавливает значение  семафора до 0. В итоге противоречий нет: семафор закрыт, в очереди нет  процессов. </p>
+  <p>Возможны  и другие реализации семафоров. Неделимость примитивов P и V обеспечивается в однопроцессорной системе  простым запретом прерываний на время их выполнения. В многопроцессорных  системах это проблему не решит, поскольку доступ к семафору по-прежнему будет  иметь несколько процессов одновременно. Для разграничения доступа требуется использовать  переменные блокировки и операцию TS. </p>
+  <p>Одним  из вариантов организации работы с семафором являются <strong>мьютексы</strong> mutex (mutual exclusion &ndash;&nbsp;  взаимное исключение). Реализованы во многих ОС, представляют собой  простейшие двоичные семафоры, которые могут находиться только в одном из двух  состояний &ndash; открыт или закрыт. Соответственно для реализации требуется всего 1  бит, хотя обычно используют переменную типа int, у которой 0 &ndash; открытое состояние, 1 &ndash;  закрытое. Значение мьютекса&nbsp;  устанавливается 2 процедурами. Если процесс хочет войти в КС, он  вызывает процедуру закрытия мьютекса, например mutex_lock. Если мьютекс открыт, то запрос выполняется и вызывающий  процесс может попасть в КС. Если же мьютекс закрыт, то процесс блокируется,  пока другой процесс, находящийся в КО, не выйдет из нее, открыв мьютекс  соответствующей процедурой, например, mutex_unlock.&nbsp; Как только какой-либо процесс становится  владельцем объекта mutex, он  закрывается, а когда задача его освобождает, он открывается. Пример реализации  мьютекса:</p>
+  <p><em>mutex</em><em>_</em><em>lock</em><em>:</em><br />
+    <em>bts </em><em>mutex</em><em>, 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;  закрыть мьютекс</em><br />
+    <em>jnc </em><em>OK</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;  если мьютекс был открыт, то конец процедуры</em><br />
+    <em>call </em><em>thread</em><em>_</em><em>yield</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;иначе  поток блокируется, передается управление другому</em><br />
+    <em>jmp </em><em>mutex</em><em>_</em><em>lock</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;новая  попытка</em><br />
+    <em>OK</em><em>: &nbsp; </em><em>ret</em><em>;</em></p>
+  <p><em>mutex_unlock:</em><br />
+    <em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; move  mutex, 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;</em><em>открыть</em><em>мьютекс</em><br />
+    <em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ret</em><em>;</em></p>
+  <p>От  прямого использования операции TS  имеется одно существенное отличие: не используется активного ожидания. Существует  еще одна проблема, связанная с синхронизацией, про которую не было сказано. В  рассмотренных ранее случаях (алгоритмы Деккера и Петерсона, семафоры)  предполагалось, что имеется общая глобальная переменная. Однако процессы имеют  каждый свое адресное пространство. Как организовать доступ к общему участку  памяти? Существует 2 варианта решения. 1: совместно используемые переменные,  например, семафоры, хранить в ядре с доступом через системные запросы. 2:  позволить процессам использовать некоторую общую область памяти. Как правило, в  современных ОС реализованы оба варианта.</p>
+  <p><strong>Задача  производитель-потребитель.</strong><br />
+    Два  процесса совместно используют буфер ограниченного размера.  Процесс-производитель помещает туда данные, а процесс потребитель считывает.  Проблема возникает, когда производитель пытается поместить данные, и  обнаруживает, что буфер полон. Решение в том, чтобы ждать, пока буфер частично  или полностью не освободится. Аналогично, если потребитель обращается за  данными, а буфер пуст, он также переводится в состояние ожидания. Решение &ldquo;в  лоб&rdquo; приводит к состоянию состязания, как в случае с печатью файлов. Рассмотрим  тривиальное, но неверное решение. Нужна переменная для отслеживания количества  записей в буфере count. Пусть  N&nbsp; - максимальная длина буфера:</p>
+  <p><em>#</em><em>define </em><em>N</em><em> 100&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //длина  буфера</em><br />
+    <em>int </em><em>count</em><em>=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //число  заполненных элементов &ndash; глобальная переменная</em></p>
+  <p><em>void producer(void)</em><br />
+    <em>{int item;</em><br />
+    <em>while (TRUE)</em><br />
+    <em>{item=produce_item();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //</em><em>сформировать</em><em>новый</em><em>элемент</em><br />
+    <em>if (count==N) sleep();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //</em><em>если</em><em>буфер</em><em>полон</em><em>, </em><em>ожидание</em><br />
+    <em>insert</em><em>_</em><em>item</em><em>(</em><em>item</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //поместить  элемент в буфер</em><br />
+    <em>count</em><em>++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //изменить  значение кол-ва элементов</em><br />
+    <em>if</em><em> (</em><em>count</em><em>==1) </em><em>wakeup</em><em>(</em><em>consumer</em><em>);}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //если  до этого буфер был пуст, вывести из ожидания потребителя</em></p>
+  <p><em>void consumer(void)</em><br />
+    <em>{int item;</em><br />
+    <em>while (TRUE)</em><br />
+    <em>{if (count==0) sleep();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //</em><em>если</em><em>буфер</em><em>пуст</em><em>, </em><em>ожидание</em><br />
+    <em>item</em><em>=</em><em>remove</em><em>_</em><em>item</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //взять  элемент из буфера</em><br />
+    <em>count</em><em>--;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //изменить  кол-во</em><br />
+    <em>if</em><em>(</em><em>count</em><em>==</em><em>N</em><em>-1) </em><em>wakeup</em><em>(</em><em>producer</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //если  буфер был заполнен, вывести из ожидания производителя</em><br />
+    <em>consume</em><em>_</em><em>item</em><em>(</em><em>item</em><em>);}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //использовать  элемент</em></p>
+  <table border="1" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="66" valign="top"><p align="center">count</p></td>
+      <td width="189" valign="top"><p align="center">производитель </p></td>
+      <td width="189" valign="top"><p align="center">потребитель </p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N</p></td>
+      <td width="189" valign="top"><p><em>produce_item()</em></p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N</p></td>
+      <td width="189" valign="top"><p><em>if (count==N) //true</em></p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>if (count==0) //false </em></p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>remove_item()</em></p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N-1</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>count--</em></p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N-1</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>if(count==N-1) // true</em></p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N-1</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>wakeup(producer)</em></p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N-1</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>consume_item(item)</em></p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">N-1</p></td>
+      <td width="189" valign="top"><p><em>sleep() //###</em></p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p>&hellip;</p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">0</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>if (count==0) //true</em></p></td>
+    </tr>
+    <tr>
+      <td width="66" valign="top"><p align="center">0</p></td>
+      <td width="189" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>sleep() // ###</em></p></td>
+    </tr>
+  </table>
+  <p>Рассмотрим эту ситуацию. Производитель  подготовил объект и пытается поместить его в буфер, который заполнен до отказа  (count=N). Он читает значение счетчика, сравнивает  его с максимальным, но перейти в состояние ожидания не успевает, поскольку  планировщик переключает процессы, передавая управление потребителю. Тот читает  счетчик, берет элемент из буфера, уменьшает счетчик и, поскольку буфер был  полон, посылает сигнал производителю на выход из состояния ожидания. Однако  производитель не находится в состоянии ожидания и сигнал пропадает. Когда,  наконец, планировщик вновь переключит процессы, производитель благополучно  перейдет к ожиданию, несмотря на то, что состояние буфера уже поменялось. В  результате потребитель выберет из буфера все элементы и также перейдет в  состояние ожидания. Оба процесса будут ожидать &ndash; один освобождения буфера,  другой &ndash; его заполнения. Аналогичные проблемы возникают при пустом буфере  Проблема в том, что производитель не успел перейти в состояние ожидания и  сигнал активации пропал впустую, создавая типичную ситуацию гонок. Одно из  решений проблемы в использовании бита активации. Если сигнал активации посылается  процессу, который не находился в состоянии ожидания,&nbsp; то бит устанавливается. Если процесс пытается  уйти в состояние ожидания, проверяется этот бит. Если он установлен, то процесс  не переводится в состояние ожидания, а всего лишь сбрасывает этот бит,  продолжая обработку. Однако задача может быть обобщена на случай N производителей и M потребителей, и одного бита становится  недостаточно.</p>
+  <p>Рассмотрим  решение с помощью семафоров. <br />
+    <em>#define N 100</em><br />
+    <em>typedef int semaphore;</em><br />
+    <em>semaphore </em><em>mutex</em><em>=1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  контроль доступа в КО</em><br />
+    <em>semaphore </em><em>empty</em><em>=</em><em>N</em><em>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  число пустых ячеек</em><br />
+    <em>semaphore full=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>число</em><em>заполненных</em><em>ячеек</em></p>
+  <p><em>void producer(void)</em><br />
+    <em>{int item;</em><br />
+    <em>while (1)</em><br />
+    <em>{item=produce_item();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>создание</em><em>данных</em><br />
+    <em>P</em><em>(&amp;</em><em>empty</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  уменьшить счетчик пустых сегментов</em><br />
+    <em>P</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  вход в критическую область</em><br />
+    <em>insert</em><em>_</em><em>item</em><em>(</em><em>item</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  поместить элемент в буфер</em><br />
+    <em>V</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  выход из КС</em><br />
+    <em>V</em><em>(&amp;</em><em>full</em><em>);}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  увеличить счетчик полных ячеек</em></p>
+  <p><em>void consumer (void)</em><br />
+    <em>{int item;</em><br />
+    <em>while</em><em> (1)</em><br />
+    <em>{</em><em>P</em><em>(&amp;</em><em>full</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  уменьшить число полных ячеек</em><br />
+    <em>P</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  вход в КС</em><br />
+    <em>item</em><em>=</em><em>remove</em><em>_</em><em>item</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  взять данные из буфера</em><br />
+    <em>V</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  выход из КС</em><br />
+    <em>V</em><em>(&amp;</em><em>empty</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  увеличить число пустых ячеек</em><br />
+    <em>consume</em><em>_</em><em>item</em><em>(</em><em>item</em><em>);}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  обработать элемент</em></p>
+  <p>Используется  3 семафора: для пустых сегментов, для полных, и для исключения одновременного  доступа к буферу. Первые два используются не для разграничения доступа, а для  синхронизации процессов.</p>
+  <table border="1" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="200" valign="top"><p>empty &nbsp;&nbsp;&nbsp;&nbsp;full &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mutex </p></td>
+      <td width="198" valign="top"><p align="center">производитель</p></td>
+      <td width="161" valign="top"><p align="center">потребитель</p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="198" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="161" valign="top"><p><em>P</em><em>(&amp;</em><em>full</em><em>) // ###</em></p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="198" valign="top"><p><em>P(&amp;empty)</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="198" valign="top"><p><em>P(&amp;mutex)</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="198" valign="top"><p><em>KC</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="198" valign="top"><p><em>V(&amp;mutex)</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="198" valign="top"><p><em>V(&amp;full)</em></p></td>
+      <td width="161" valign="top"><p><em>=&gt;</em></p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="198" valign="top"><p align="center"><em>&nbsp;</em></p></td>
+      <td width="161" valign="top"><p><em>P(&amp;mutex)</em></p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="198" valign="top"><p align="center"><em>&nbsp;</em></p></td>
+      <td width="161" valign="top"><p><em>KC</em></p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="198" valign="top"><p><em>P(&amp;empty)</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="198" valign="top"><p><em>P(&amp;mutex) // ###</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em></p></td>
+      <td width="198" valign="top"><p><em>=&gt;</em></p></td>
+      <td width="161" valign="top"><p><em>V(&amp;mutex)</em></p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="198" valign="top"><p><em>KC</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N-2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="198" valign="top"><p align="center"><em>&nbsp;</em></p></td>
+      <td width="161" valign="top"><p><em>V(&amp;empty)</em></p></td>
+    </tr>
+    <tr>
+      <td width="121" valign="top"><p><em>N</em><em>-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="198" valign="top"><p><em>&hellip;</em></p></td>
+      <td width="161" valign="top"><p align="center">&nbsp;</p></td>
+    </tr>
+  </table>
+  <p><strong>Поддержка механизмов  синхронизации в ОС </strong><strong>Windows</strong><strong>.</strong> Поддерживаются следующие объекты  синхронизации: критические секции, мьютексы, семафоры, события. Объект <strong>критической секции</strong> создается и  удаляется функциями<br />
+    <br /><code>void <strong>InitializeCriticalSection</strong> (LPCRITICAL_SECTION lpCriticalSection) <br />
+    void <strong>DeleteCriticalSection</strong> (LPCRITICAL_SECTION  lpCriticalSection) <br /></code>
+    <br />В  качестве параметра передается указатель на переменную типа CRITICAL_SECTION. Эти объекты не имеют дескрипторов и соответственно не могут  использоваться совместно разными процессами, только потоками. При входе и выходе  из критического участка кода поток вызывает соответственно функции: <br />
+    <br /><code>void <strong>EnterCriticalSection</strong> (LPCRITICAL_SECTION lpCriticalSection) <br />
+    void <strong>LeaveCriticalSection</strong> (LPCRITICAL_SECTION lpCriticalSection) <br /></code>
+    <br />Внутри  области кода, защищенной одним и тем же объектом КС может находиться только  один поток. Если другой в это время вызывает EnterCriticalSection, он блокируется. Объекты КС не являются  объектами ядра и поддерживаются в пространстве пользователя, что позволяет  увеличить производительность. Это простейший механизм синхронизации потоков  одного и того же процесса.</p>
+  <p>В  отличие от объектов КС, мьютексы могут иметь имена и дескрипторы, реализуются в  пространстве ядра и их можно использовать для синхронизации потоков разных  процессов. Дополнительно мьютексы позволяют задавать конечный период ожидания в  состоянии блокировки. Мьютекс создается функцией <br />
+    <br /><code>HANDLE <strong>CreateMutex</strong> (<br />
+    LPSECURITY_ATTRIBUTES  lpsa,<br />
+    BOOL  bInitialOwner,<br />
+    LPCTSTR lpName)<br /></code>
+    <br />Здесь lpsa &ndash; указатель на структуру атрибутов защиты,  определяет возможность наследования указателя на объект мьютекса дочерними  процессами. Если NULL &ndash; не  наследуется. BInitialOwner  определяет, требуется ли захват мьютекса сразу после создания. TRUE &ndash; да, FALSE &ndash; нет. LpName &ndash; указатель на нуль-строку, содержащую имя  создаваемого объекта. Функция возвращает указатель типа HANDLE на созданный объект. Если создание не  удалось, возвращается NULL.&nbsp; Созданный мьютекс имеет два состояния &ndash;  сигнальное и нет. В сигнальном состоянии он может быть захвачен, в противном  случае при попытке захвата поток блокируется. Для получения указателя на уже  имеющийся объект используется функция<br />
+    <br /><code>HANDLE <strong>OpenMutex</strong> (<br />
+    DWORD  dwDesiredAccess,<br />
+    BOOL  bInheritHandle,<br />
+    LPCTSTR  lpName)<br /></code>
+    <br />Первый  параметр определяет режим использования. MUTEX_ALL_ACCESS определяет разрешение всех возможных вариантов  работы с объектом. Второй параметр определяет возможность наследования  указателя на объект мьютекса. Третий &ndash; указатель на имя. Для удаления ссылки на  мьютекс используется<br />
+    BOOL <strong>CloseHandle</strong> (HANDLE hObject)<br />
+    Ссылка  удаляется и автоматически при закрытии потока. Мьютекс уничтожается системой  автоматически, если с ним не связано ни одного указателя. Для захвата мьютекса  используется одна из функций ожидания сигнального состояния. Если объект  находится в этом состоянии, происходит захват, и он переводится в несигнальное  состояние. Другой поток буде вынужден ждать. Рассмотрим две функции из этого  множества:<br />
+    <br /><code>DWORD <strong>WaitForSingleObject</strong> (<br />
+    HANDLE  hHandle,<br />
+    DWORD  dwMilliseconds)<br /></code>
+    <br />Здесь hHandle &ndash;указатель на объект, сигнальное состояние  которого ожидается, второй параметр &ndash; максимально допустимое время ожидания в  милисекундах. Если интервал задан 0 &ndash; тестируется текущее состояние и  происходит немедленный возврат. Если указано INFINITE интервал тайм-аута не используется. В  случае ошибки возвращается значение WAIT_FAILED.  Иначе WAIT_ABANDONED, если поток, который создал мьютекс, уже завершился без  освобождения объекта с помощью Release.  Вызвавший функцию процесс становится владельцем, а мьютекс переходит в  несигнальное состояние. WAIT_OBJECT_0, если состояние объекта сигнальное,  WAIT_TIMEOUT, если завершился тайм-аут. Функция позволяет работать не только с  мьютексами, но и с другими объектами, в т.ч. семафорами, события, процессы,  потоки, таймеры и др.<br />
+    <br /><code>DWORD <strong>WaitForMultipleObjects </strong>(<br />
+    DWORD nCount,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; число указателей на объекты<br />
+    CONST HANDLE *lpHandles,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; массив указателей<br />
+    BOOL bWaitAll,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; если TRUE, то ждет всех объектов в сигнальном  состоянии, FALSE &ndash;  любого из них<br />
+    DWORD dwMilliseconds)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; тайм-аут<br />
+    </code><br />Возвращаемые  значения аналогичны, однако, если bWaitAll=FALSE, то  возвращаемое значение минус WAIT_OBJECT_0 (либо WAIT_ABANDONED) указывает номер  указателя в массиве на тот объект, который находится в сигнальном состоянии.  Если bWaitAll=TRUE функция не изменяет значения объектов  синхронизации до тех пор, пока все они не будут в сигнальном состоянии, т.е.  либо атомарно выполняются все операции сразу, либо не выполняются вообще.<br />
+    <br /><code>DWORD <strong>MsgWaitForMultipleObjects</strong>(<br />
+    DWORD  nCount, <br />
+    LPHANDLE  pHandles, <br />
+    BOOL fWaitAll, <br />
+    DWORD dwMilliseconds, <br />
+    DWORD dwWakeMask) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; тип  сообщений в очереди, по которым ожидание так же должно закончиться<br />
+    </code><br />Аналогичная  функция, позволяющая дополнительно обрабатывать сообщения из очереди, например,  для обработки клавиатуры или мыши. Параметры идентичны. WakeMask: QS_ALLINPUT &ndash; любое сообщение в очереди, QS_HOTKEY - сообщение WM_HOTKEY, QS_INPUT &ndash; сообщение ввода, QS_KEY &ndash;  сообщения WM_KEYUP, WM_KEYDOWN, WM_SYSKEYUP, WM_SYSKEYDOWN, QS_MOUSE - сообщения WM_MOUSEMOVE или нажатия кнопок мыши (WM_LBUTTONUP, WM_RBUTTONDOWN, и др.), QS_MOUSEBUTTON &ndash; нажатие кнопок мыши (WM_LBUTTONUP, WM_RBUTTONDOWN, и др.), QS_MOUSEMOVE - сообщение WM_MOUSEMOVE, QS_PAINT - сообщение WM_PAINT, QS_POSTMESSAGE &ndash; сообщение иное, чем в данном списке, QS_SENDMESSAGE &ndash; сообщение присланное другим потоком или  приложением, QS_TIMER - сообщение WM_TIMER. Возвращаемые значения аналогичны, дополнительно WAIT_OBJECT_0  + nCount указывает, что появилось сообщение в очереди.<br />
+    <br /><code>DWORD <strong>SignalObjectAndWait</strong>(<br />
+    HANDLE hObjectToSignal, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; объект,  устанавливаемый в сигнальное состояние<br />
+    HANDLE hObjectToWaitOn, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; объект,  сигнальное состояние которого ожидается<br />
+    DWORD dwMilliseconds,  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; тайм-аут <br />
+    BOOL bAlertaible)  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+    </code><br />Эта  функция позволяет атомарным образом один объект установить в сигнальное  состояние, после чего дождаться сигнального состояния второго объекта. Windows поддерживает асинхронные  вызовы процедур. При создании потока с ним связывается очередь асинхронных  вызовов процедур (APC queue). ОС либо пользователь могут помещать в нее запросы  на выполнение функций в контексте данного потока. Эти функции не могут быть выполнены  немедленно, поскольку поток может быть занят. Параметр bAlertaible  указывает, оканчивать ли ожидание, если пришел запрос на асинхронный вызов  процедуры. Возвращаемые значения аналогичны WaitForSingleObject.<br />
+    BOOL <strong>ReleaseMutex</strong> (HANDLE hMutex) <br />
+    Освобождает  захваченный мьютекс. Передается указатель на объект, возвращает TRUE, если успешно, FALSE, если ложно. </p>
+  <p>Механизм  семафоров поддерживает счетчики, если значение счетчика больше 0, он в  сигнальном состоянии. Отрицательные значения не допускаются. Создание:<br />
+    <br /><code>HANDLE <strong>CreateSemaphore</strong> (<br />
+    LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -  права наследования<br />
+    LONG lInitialCount,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -  начальное значение<br />
+    LONG lMaximumCount,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -  максимально допустимое значение<br />
+    LPCTSTR lpName) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -  указатель на имя<br />
+    </code><br />Удаление  ссылки производится уже рассмотренной функцией CloseHandle или автоматически при завершении потока.  Объект автоматически удаляется, если нет связанных с ним указателей. Получение  указателя на существующий объект &ndash; <br />
+    <br /><code>HANDLE <strong>OpenSemaphore</strong> (<br />
+    DWORD  dwDesiredAccess, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+    BOOL  bInheritHandle,<br />
+    LPCTSTR lpName)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+    </code><br />Параметры  полностью идентичны функции OpenMutex.  Ожидание сигнального состояния производится с помощью рассмотренных WaitForSingleObject, WaitForMultipleObjects и др. Снятие захвата (операция V) производится функцией<br />
+    <br /><code>BOOL <strong>ReleaseSemaphore</strong> (<br />
+    HANDLE hSemaphore,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; указатель  на объект<br />
+    LONG lReleaseCount,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; величина, на которую надо  увеличить значение семафора, больше 0<br />
+    LPLONG lpPreviousCount)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; указатель  на переменную, куда будет возвращено предыдущее значение семафора</p>
+  </code><br /><p>Объект  события позволяет сигнализировать другим процессам о наступлении какого-либо  события. Существуют сбрасываемые программно (вручную) события, когда сигнал  может быть передан одновременно всем потокам, и сбрасываемые автоматически  после освобождения одного из потоков. Создание объекта:<br />
+    <br /><code>HANDLE <strong>CreateEvent</strong> (<br />
+    LPSECURITY_ATTRIBUTES lpEventAttributes, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; атрибут  наследования<br />
+    BOOL bManualReset,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TRUE для ручного сброса<br />
+    BOOL bInitialState,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; начальное  состояние, TRUE -  сигнальное<br />
+    LPCTSTR lpName)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; указатель  на имя.<br />
+    </code><br />Ручной  сброс выполняется функцией BOOL <strong>ResetEvent </strong>(HANDLE hEvent). <strong>OpenEvent</strong> аналогично уже рассмотренным вариантам  возвращает указатель на существующий объект события. BOOL <strong>S</strong><strong>etEvent </strong>(HANDLE hEvent) устанавливает событие в сигнальное состояние.  BOOL <strong>Pulse</strong><strong>Event </strong>(HANDLE hEvent) освобождает все потоки,  ожидающие сбрасываемого вручную события, и событие сразу же сбрасывается.</p>
+  <p>Для  работы с разделяемой памятью используются функции <strong>OpenFileMapping</strong><strong>, </strong><strong>MapViewOfFile</strong><strong>, </strong><strong>UnmapViewOfFile</strong><strong>, </strong><strong>CloseHandle</strong>.  Разделяемая память организуется либо через отображение на память файла, либо  непосредственно в памяти. Далее этот объект отображается на адресное  пространство потока, в результате с файлом можно работать как с обычным  массивом данных в памяти.</p>
+  <p>Все  рассмотренные функции создания объектов синхронизации и разделяемой памяти  CreateXXX возвращают дескриптор и в том случае, если объект с таким именем уже  существует. Однако в этом случае функция GetLastError возвращает значение  ERROR_ALREADY_EXISTS, в случае же первичного создания она возвращает 0. </p>
+  <p><strong>Поддержка механизмов  синхронизации в </strong><strong>UNIX</strong>. POSIX библиотека pthreads  поддерживает мьютексы следующими функциями для создания, удаления, захвата и  освобождения мьютекса: <strong>pthread</strong><strong>_</strong><strong>mutex</strong><strong>_</strong><strong>init</strong>, <strong>pthread</strong><strong>_</strong><strong>mutex</strong><strong>_</strong><strong>destroy</strong>, <strong>pthread</strong><strong>_</strong><strong>mutex</strong><strong>_</strong><strong>lock</strong>, <strong>pthread</strong><strong>_</strong><strong>mutex</strong><strong>_</strong><strong>unlock</strong>. В  системах на основе System V, в т.ч. и ряде дистрибутивов Linux реализована наиболее общая версия  семафоров. Создание массива семафоров:<br />
+    int <strong>semget</strong> (key_t key, int nsems, int  semflg);<br />
+    key &ndash; 32 разрядная переменная-ключ,  идентифицирующая набор семафоров, nsems &ndash; число семафоров в наборе, semflg &ndash; режим доступа Значение IPC_CREAT для создания нового набора, если он уже существует, проверяются  права доступа. Если необходимо, чтобы возвращалась ошибка, если набор уже  существует, должна использоваться совместно еще одна константа&nbsp; IPC_EXCL. Для подключения к уже существующему  набору эти флаги не нужны. Младшие 9 бит флага отвечают за права доступа для root&rsquo;а, владельца, группы. Возвращает  идентификатор массива семафоров или &ndash;1 в случае ошибки. При создании набора  создается одна общая для набора структура:<br />
+    <br /><code>struct <strong>semid</strong><strong>_</strong><strong>ds</strong>{<br />
+    struct ipc_rerm sem_perm;  поля  этой структуры содержат информацию о владельце, группе и правах доступа<br />
+    struct sem* sem_base;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; указатель  на массив объектов-семафоров<br />
+    ushort sem_nsems;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; число  семафоров в наборе<br />
+    time_t sem_otime;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; время  последней операции (P или V)<br />
+    time_t sem_ctime;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; время  последнего изменения<br />
+  &hellip;}<br />
+    </code><br />При  создании инициализируются поля структуры sem_perm, sem_otime устанавливается в 0, sem_ctime в текущее время. Для каждого семафора создается структура  следующего вида:<br />
+    <br /><code>struct <strong>sem</strong>{<br />
+    ushort semval;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; текущее  значение семафора<br />
+    pid_t sempid;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; идентификатор  процесса, вызвавшего последнюю операцию<br />
+    ushort semncnt;&nbsp;&nbsp;&nbsp;&nbsp; кол-во  процессов ожидающих увеличения значения семафора<br />
+    ushort semzcnt;}&nbsp;&nbsp;&nbsp; кол-во  процессов ожидающих нулевого значения семафора<br />
+    </code><br />Ключ key можно задавать явно, однако это не  гарантирует уникальности ключа &ndash; такой уже может существовать в системе.  Большую гарантию (однако не 100%) дает использование функции<br />
+    key_t <strong>ftok</strong>(char* pathname, int proj_id);<br />
+    Первый  параметр задает путь доступа и имя существующего файла, в качестве которого  может выступать и корневой каталог (&ldquo;/&rdquo;), и текущий каталог(&ldquo;./&rdquo;). Второй  параметр &ndash; заданный пользователем ненулевой идентификатор. Хотя это переменная  типа int, для  генерации реально используется только 8 младших бит. Гарантируется уникальность  ключа для отличающихся пар и идентичность для одинаковых. В случае ошибки  возвращает -1, и ключ-идентификатор набора в случае успеха.&nbsp; <br />
+    Операции  над семафорами в массиве выполняются вызовом<br />
+    int <strong>semop</strong> (int semid, struct sembuf *sops, unsigned  nsops)<br />
+    semid &ndash; идентификатор набора, sosp &ndash; указатель на массив структур sembuf, определяющих, что выполняется с набором, nsosp &ndash; число элементов в этом массиве. В  результате один вызов обрабатывает несколько семафоров. Ядро гарантирует атомарность  этих операций, т.е. никакой другой процесс не начнет обработку над тем же  набором, пока текущий процесс не завершит ее. Структура <strong>sembuf</strong> имеет следующий вид:<br />
+    <br /><code>struct  sembuf {<br />
+    unsigned  sort sem_num;<br />
+    short  sem_op;<br />
+    shot  sem_flg}<br />
+    </code><br />Здесь sem_mun &ndash;  номер семафора в наборе. Если sem_op = 0, то происходит блокировка процесса до  тех пор, пока семафор не станет равным нулю, если sem_op&gt;0,  то sem_op добавляется к текущему значению семафора,  в результате может быть разбужен процесс, ожидающий увеличения семафора. Если sem_op&lt;0,  то происходит блокировка процесса до тех пор, пока значение семафора не станет  равным или больше по абсолютному значению, чем sem_op, после  чего от текущего значения семафора вычитается sem_op. Если  флаг sem_flg = IPC_NOWAIT, вместо блокировки происходит возврат с возвращением ошибки.  Если процесс завершает работу, не освободив захваченный семафор, то ожидающий  процесс будет заблокирован бесконечно. Чтобы этого не происходило, указывается  флаг SEM_UNDO. В этом случае ядро запоминает  произведенные процессом операции над семафором и автоматически прокручивает их  в обратном порядке при завершении работы процесса. Из системы семафоры  удаляются принудительно. В противном случае они будут существовать в системе,  даже если ни один процесс с ними не связан. С другой стороны это позволяет  поддерживать семафоры, не зависящие от жизненного цикла процессов. Для  управления объектами набора используется вызова <br />
+    int <strong>semctl</strong> (int semid, int semnum, int cmd, &hellip;)<br />
+    У  вызова 3 или 4 параметра. Первый &ndash; идентификатор набора, второй &ndash; номер  семафора в наборе, если операция выполняется над одним семафором набора, третий  &ndash; команда, четвертый параметр arg &ndash;  объединение следующего вида:<br />
+    <br /><code>union <strong>semun</strong> {<br />
+    int  val;<br />
+    struct  semid_ds *buf;<br />
+    unsigned  short *array;<br />
+    struct  seminfo *__buf;}<br />
+    </code><br />Возможны  следующие команды:<br />
+    IPC_STAT &ndash; копирует данные о наборе в структуру, определяемую arg.buf.  Параметр semnum  игнорируется.<br />
+    IPC_SET  &ndash; устанавливает поля структуры semid_ds о пользователе, группе и режиме доступа  из arg.buf. При этом модифицируется поле sem_ctime. Параметр semnum  игнорируется.<br />
+    IPC_RMID &ndash; немедленно удаляет набор семафоров, активируя все  заблокированные на нем процессы. Параметр semnum игнорируется. <br />
+    GETALL возвращает semval для всех семафоров набора в arg.array. Параметр semnum  игнорируется.<br />
+    GETVAL возвращает semval для семафора semnum набора semid.<br />
+    GETNCNT возвращает значение semncnt (число процессов, ожидающих увеличения)  для семафора semnum.<br />
+    GETZCNT возвращает значение semzcnt (число процессов, ожидающих 0) для  семафора semnum.<br />
+    GETPID возвращает sempid (т.е. pid процесса, последним выполнявшим операцию)  для семафора semnum <br />
+    SETALL устанавливает semval для всех семафоров набора из arg.array. Модифицирует sem_ctime набора. Изменение влияет на пробуждение  ожидающих процессов. Параметр semnum  игнорируется. Отрицательные значения не допускаются.<br />
+    SETVAL устанавливает semval для семафора semnum. Модифицирует sem_ctime набора. Изменение влияет на пробуждение ожидающих процессов.  Отрицательные значения не допускаются.<br />
+    Для  любой&nbsp; команды у процесса должны быть  необходимые привилегии. Для команд, изменяющих значения, идентификатор  вызвавшего их процесса должен иметь права суперпользователя или же процесс  должен быть владельцем либо создателем набора семафоров. В случае ошибки  возвращает &ndash;1, 0 в случае успеха (за исключением команд GETNCNT, GETZCNT, GETVAL, GETPID).</p>
+  <p>UNIX также поддерживает разделяемые страницы  памяти. Создание разделяемой области выполняется вызовом<br />
+    int <strong>shmget</strong> (key_t key, int size, int shmflg)<br />
+    Здесь size &ndash; размер задаваемой области, остальные  параметры аналогичны рассмотренным для семафоров. Подключение области к  виртуальному адресному пространству процесса производится вызовом<br />
+    void * <strong>shmat</strong> (int shmid, const void *shmaddr, int shmflg)<br />
+    Здесь shmid &ndash; идентификатор области, shmaddr &ndash; адрес виртуального пространства, куда  необходимо произвести отображение, если NULL , то система вправе подключить область по  любому адресу. Если флаг shmflg &ndash;SHM_RDONLY &ndash; то область подключается как только для чтения. Возвращает  адрес, на который происходит отображение. В случае ошибки возвращает &ndash;1.  Отключение отображения в виртуальное адресное пространство процесса выполняет  вызов<br />
+    int <strong>shmdt</strong> (const void *shmaddr)<br />
+    Здесь shmaddr &ndash; адрес отображения, возвращенный ранее shmat. Вызов <br />
+    int <strong>shmctl </strong>(int shmid, int cmd, struct  shmid_ds *buf)<br />
+    позволяет  управлять соответствующими структурами, отвечающими за разделяемую память и  отображение. Shmid &ndash; идентификатор  области, cmd &ndash;  соманда, buf &ndash;  указатель на структуру с информацией об области. Команда IPC_RMID позволяет освободить занятые структуры, при этом область  удаляется лишь в том случае, если все отображения будут отключены процессами.  При ошибке возвращает &ndash;1, при успешном завершении 0.</p>
+  <p><strong>Сравнение  возможностей механизмов синхронизации:</strong></p>
+  <table border="1" cellspacing="0" cellpadding="0" width="733">
+    <tr>
+      <td width="244" valign="top"><br />
+        <strong>ОС</strong></td>
+      <td width="244" valign="top"><p align="center"><strong>Windows</strong></p></td>
+      <td width="244" valign="top"><p align="center"><strong>UNIX</strong></p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Разнообразие механизмов синхронизации</p></td>
+      <td width="244" valign="top"><p>4 различающихся типа</p></td>
+      <td width="244" valign="top"><p>Один универсальный механизм, позволяющий    реализовать все варианты</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Создание объектов синхронизации</p></td>
+      <td width="244" valign="top"><p>Отдельно для каждого объекта</p></td>
+      <td width="244" valign="top"><p>Для набора объектов</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Удаление объектов синхронизации</p></td>
+      <td width="244" valign="top"><p>Автоматическое при отсутствии дескрипторов</p></td>
+      <td width="244" valign="top"><p>Ручное</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Операция P(S)</p></td>
+      <td width="244" valign="top"><p>Только &ndash;1</p></td>
+      <td width="244" valign="top"><p>На любую величину</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Операция V(S)</p></td>
+      <td width="244" valign="top"><p>На любую величину</p></td>
+      <td width="244" valign="top"><p>На любую величину</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Атомарное выполнение нескольких операций</p></td>
+      <td width="244" valign="top"><p>Только для P(S)</p></td>
+      <td width="244" valign="top"><p>Любое сочетание из набора</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Получение значения семафора</p></td>
+      <td width="244" valign="top"><p>Только при V(S)</p></td>
+      <td width="244" valign="top"><p>Отдельная команда</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Инициализация объектов</p></td>
+      <td width="244" valign="top"><p>При создании</p></td>
+      <td width="244" valign="top"><p>Отдельная команда</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Управление набором</p></td>
+      <td width="244" valign="top"><p>Отсутствует</p></td>
+      <td width="244" valign="top"><p>Поддерживается</p></td>
+    </tr>
+    <tr>
+      <td width="244" valign="top"><p>Отрицательные значения семафоров</p></td>
+      <td width="244" valign="top"><p>Не поддерживается</p></td>
+      <td width="244" valign="top"><p>Не поддерживается</p></td>
+    </tr>
+  </table>
+  <p>Однако  использование семафоров тоже имеет свои ограничения. Если семафоры в листинге  поменять местами, то может произойти взаимоблокировка, т.е. программы не  застрахованы от случайных ошибок пользователя. Для организации взаимодействия в  1974 г.  Хоар и Хансен предложили примитив синхронизации более высокого уровня &ndash; <strong>монитор</strong>. Монитор &ndash; это набор процедур,  переменных и других структур данных, объединенных в особый модуль или пакет.  Например, какой-либо ресурс должен разделяться между процессами. Соответственно  для получения ресурса процесс должен обратиться к некоторому планировщику,  который с помощью внутренних переменных отслеживает, занят ресурс или свободен  и выполняет последующие необходимые действия. Процедуры этого планировщика  разделяются всеми процессами, однако планировщик может обслуживать только один  процесс. Такой планировщик и является монитором.</p>
+  <p>Процессы  могут вызывать процедуры монитора, однако у внешних процедур нет прямого  доступа к внутренним структурам монитора. Важным свойством монитора является  следующее: при обращении к монитору в любой момент времени активным может быть  только один процесс. Мониторы являются структурным компонентом языка  программирования, и компилятор знает, что процедуры монитора надо обрабатывать  иначе, чем вызовы других процедур. Как правило, первые несколько команд  процедуры монитора проверяют, нет ли уже в мониторе активного процесса. Если  есть, то вызывающий процесс ожидает. Для реализации взаимного исключения обычно  используется мьютекс или бинарный семафор. Этого еще недостаточно. Необходим  способ блокировки процессов, которые не могут продолжаться дальше.&nbsp; Решение в том, чтобы ввести переменные  состояния и две операции wait и signal. Если процедура монитора обнаруживает, что  она не может продолжать работу, то она выполняет операцию wait на какой-либо переменной состояния. Это  приводит к блокировке вызывающего процесса и позволяет другому процессу войти в  монитор. Другой процесс может активизировать его, выполнив операцию signal на той переменной состояния, на которой тот  был заблокирован. Еще надо сделать так, чтобы в мониторе не было двух процессов  одновременно. Хоар предложил запуск разбуженного процесса и остановку второго.  Хансен предложил, что процесс, выполнивший signal, должен немедленно покинуть монитор. Т.е.  операция signal должна  выполняться в самом конце монитора. Если signal выполнена на переменной, с которой связаны  несколько заблокированных процессов, планировщик выбирает только один из них.  Существует и третье решение: позволить процессу, выполнившему signal, продолжать работу и запустить ожидающий  процесс только после того, как первый процесс покинет монитор. Переменные  состояния не являются счетчиками. Они не накапливают значения. Это значит, что  в случае выполнения операции signal на  переменной состояния, с которой не связано ни одного блокированного процесса,  сигнал будет утерян. Т.е. операция wait должна выполняться раньше, чем signal. </p>
+  <p>Механизм  мониторов поддерживается Java.  Ключевое слово <strong>synchronized</strong> гарантирует, что если хотя бы один поток  начал выполнение этого метода, ни один другой поток не сможет выполнять другой  синхронизированный метод данного класса. Т.е. идет поддержка механизма  мониторов на уровне языка, что отсутствует в C. Решение задачи производители-потребители  с помощью мониторов на Java:</p>
+  <p><em>public class ProducerConsumer</em><br />
+    <em>{static final int N=100;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>размер</em><em>буфера</em><br />
+    <em>&nbsp; static  producer p=new producer();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>экземпляр</em><em>потока</em><em>производителя</em><br />
+    <em>&nbsp; static  consumer c=new consumer();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>экземпляр</em><em>потока</em><em>потребителя</em><br />
+    <em>&nbsp; static  pc_monitor mon=new pc_monitor();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>экземпляр</em><em>монитора</em></p>
+  <p><em>&nbsp; public static  void main (String args[])</em><br />
+    <em>{</em><em>p</em><em>.</em><em>start</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  запуск потоков производителя и потребителя</em><br />
+    <em>c.start();}</em></p>
+  <p><em>&nbsp; static class  producer extends Thread&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>класс</em><em>производителя</em><br />
+    <em>{public void run()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>процедура</em><em>потока</em><br />
+    <em>{int item;</em><br />
+    <em>&nbsp; while (true)</em><br />
+    <em>{item=produce_item();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>произвести</em><em>элемент</em><br />
+    <em>&nbsp; mon</em><em>.</em><em>insert</em><em>(</em><em>item</em><em>);}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  добавить его в буфер с помощью монитора</em></p>
+  <p><em>private int produce_item()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>процедура</em><em>получения</em><em>элемента</em><br />
+    <em>{&hellip;}}</em></p>
+  <p><em>static class consumer extends Thread&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>класс</em><em>потребителя</em><br />
+    <em>{public void run()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>процедура</em><em>потока</em><br />
+    <em>int item;</em><br />
+    <em>while</em><em> (</em><em>true</em><em>)</em><br />
+    <em>{</em><em>item</em><em> = </em><em>mon</em><em>.</em><em>remove</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  взять элемент из буфера с помощью монитора</em><br />
+    <em>consume</em><em>_</em><em>item</em><em>(</em><em>item</em><em>);}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  потребить элемент</em></p>
+  <p><em>private </em><em>void</em><em> comsume</em><em>_</em><em>item</em><em>(</em><em>int</em><em>item</em><em>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  процедура использования элемента</em><br />
+    <em>{&hellip;}}</em></p>
+  <p><em>static class pc_monitor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>класс</em><em>монитора</em><br />
+    <em>{private int buffer[]=new int[N];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>содержит</em><em>буфер</em><br />
+    <em>&nbsp; private int  count=0, lo=0, hi=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>счетчик</em><em>и</em><em>индексы</em></p>
+  <p><em>&nbsp; public  synchronized void insert (int val)&nbsp;&nbsp;&nbsp; // </em><em>процедура</em><em>добавления</em><em>элемента</em><em>в</em><em>буфер</em><br />
+    <em>{if (count==N) go_to_sleep();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>если</em><em>буфер</em><em>полон</em><em>, </em><em>ожидание</em><br />
+    <em>&nbsp;  buffer[hi]=val;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>поместить</em><em>элемент</em><br />
+    <em>&nbsp; hi</em><em>=(</em><em>hi</em><em>+1)%</em><em>N</em><em>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  увеличить индекс для записи</em><br />
+    <em>count</em><em>=</em><em>count</em><em>+1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  число элементов в буфере</em><br />
+    <em>if</em><em> (</em><em>count</em><em>==1) </em><em>notify</em><em>();}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  если буфер был пуст, разбудить процесс</em></p>
+  <p><em>public </em><em>synchronized </em><em>int </em><em>remove</em><em>()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  процедура взятия объекта из буфера</em><br />
+    <em>{int val;</em><br />
+    <em>&nbsp; if (count==0)  go_to_sleep();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>если</em><em>буфер</em><em>пуст</em><em>, </em><em>ожидание</em><br />
+    <em>&nbsp; val</em><em>=</em><em>buffer</em><em>[</em><em>lo</em><em>];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  взятие элемента</em><br />
+    <em>lo</em><em>=(</em><em>lo</em><em>+1)%</em><em>N</em><em>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  увеличение индекса для взятия</em><br />
+    <em>count</em><em>=</em><em>count</em><em>-1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  число элементов в буфере</em><br />
+    <em>if</em><em> (</em><em>count</em><em>==</em><em>N</em><em>-1) </em><em>notify</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  если буфер был полон, разбудить процесс</em><br />
+    <em>return val;}</em></p>
+  <p><em>private void go_to_sleep()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>процедура</em><em>ожидания</em><br />
+    <em>{</em><em>try</em><br />
+    <em>{</em><em>wait</em><em>();}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  ожидание с обработкой исключения</em><br />
+    <em>catch</em><em> (</em><em>InterruptedException </em><em>exc</em><em>) {};}}}</em></p>
+  <p>Внешний  класс ProducerConsumer  создает и запускает два потока. Класс монитора содержит два синхронизированных  потока, используемых для текущего помещения элементов в буфер и извлечения их  оттуда. Поскольку эти методы синхронизированы, то состояние состязания исключается  автоматически средствами языка программирования. Переменная Count отслеживает количество элементов в буфере,  lo &ndash;  содержит индекс, откуда надо извлекать элемент, hi &ndash; куда помещать. Если lo=hi, то в  буфере или нет элементов, или он заполнен полностью, что можно отследить с  помощью count.  Синхронизированные методы в Java  несколько отличаются от классических мониторов тем, что у них отсутствует  переменная состояния. Взамен предлагаются аналогичные процедуры wait и notify. </p>
+  <p>Доступ  к разделяемым переменным всегда ограничен телом монитора, что автоматически  исключает критические интервалы. Монитор является пассивным объектом в том  смысле, что это не процесс, его процедуры выполняются только по требованию  процессов. Мониторы обладают следующими свойствами:</p>
+  <ul>
+    <li>Высокая  гибкость при реализации синхронизирующих операций</li>
+    <li>Локализация  разделяемых переменных в теле монитора позволяет вынести специфические  синхронизирующие конструкции из параллельных процессов</li>
+    <li>Процессы  имеют возможность совместно использовать модули, имеющие критические секции</li>
+    <li>Если  несколько процессов разделяют некоторый ресурс, и работают с ним совершенно  одинаково,то в мониторе для этого требуется только одна процедура. При других  решениях соответствующий код должен быть в теле всех процессов</li>
+  </ul>
+  <p><strong>Volatile</strong>. Даже  если синхронизация успешно решена без помощи специальных механизмов, этого  может быть недостаточно, если используются оптимизирующая компиляция программы.  В этом случае измененное значение переменной может оставляться в регистре  процессора, а не заноситься сразу в заданную ячейку памяти, что опять приводит  к гонкам. В стандарте ANSI C описан спецификатор volatile позволяющий гарантировать, что переменная  после изменения будет возвращена в память. </p>
+  <p><strong>Проблема обедающих философов</strong>. Решение:</p>
+  <p><em>#</em><em>define </em><em>N</em><em> 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  число философов</em><br />
+    <em>#define LEFT (i+N)%N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>левый</em><em>сосед</em><em>философа</em><em> i</em><br />
+    <em>#define RIGHT (I+1)%N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>правый</em><em>сосед</em><em>философа</em><em> i</em><br />
+    <em>#define THINKING 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>думает</em><br />
+    <em>#define HUNGRY 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>голодает</em><br />
+    <em>#define EATING 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>ест</em></p>
+  <p><em>typedef int semaphore;</em><br />
+    <em>int</em><em>state</em><em>[</em><em>N</em><em>];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  состояния философов</em><br />
+    <em>semaphore </em><em>mutex</em><em>=1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  взаимное исключение для критич. обл.</em><br />
+    <em>semaphore </em><em>s</em><em>[</em><em>N</em><em>];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  семафоры для каждого философа</em></p>
+  <p><em>void philosopher(int i)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>процессы</em><em>для</em><em>философов</em><br />
+    <em>{while(1)</em><br />
+    <em>{think();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>размышляет</em><br />
+    <em>&nbsp; take_forks(i);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>берет</em><em>вилки</em><br />
+    <em>&nbsp; eat();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>ест</em><br />
+    <em>&nbsp; put_forks();}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>кладет</em><em>вилки</em></p>
+  <p><em>void take_forks(int i)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>взятие</em><em>вилки</em><br />
+    <em>{P(&amp;mutex);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>закрыть</em><em>мьютекс</em><br />
+    <em>&nbsp;  state[i]=HUNGRY;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>состояние</em><em>философа</em><em> &ndash; </em><em>нужен</em><em>ресурс</em><br />
+    <em>&nbsp; test</em><em>(</em><em>i</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  попытка получить вилки</em><br />
+    <em>V</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  открытие мьютекса, выход из КС</em><br />
+    <em>P</em><em>(&amp;</em><em>s</em><em>[</em><em>i</em><em>]);}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  философ в ожидании или использовании вилок</em></p>
+  <p><em>void put_forks(int i)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>отпустить</em><em>вилки</em><br />
+    <em>{</em><em>P</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  вход в КС</em><br />
+    <em>state</em><em>[</em><em>i</em><em>]=</em><em>THINKING</em><em>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  перестал есть, размышляет</em><br />
+    <em>test</em><em>(</em><em>LEFT</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  может ли есть сосед справа</em><br />
+    <em>test</em><em>(</em><em>RIGHT</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  может ли есть сосед слева</em><br />
+    <em>V</em><em>(&amp;</em><em>mutex</em><em>);}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  выход из КС</em></p>
+  <p><em>void </em><em>test</em><em>(</em><em>int</em><em>i</em><em>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  если хочет есть и соседи не едят</em><br />
+    <em>{if(state[i]==HUNGRY &amp;&amp; state[LEFT]!=EATING  &amp;&amp; state[RIGHT]!=EATING)</em><br />
+    <em>{</em><em>state</em><em>[</em><em>i</em><em>]=</em><em>EATING</em><em>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  есть</em><br />
+    <em>V</em><em>(&amp;</em><em>s</em><em>[</em><em>i</em><em>]);}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  философ не использует и не требует вилок</em></p>
+  <p><strong>Задача читатели-писатели</strong>. Ситуация типична при доступе к БД.  Например, бронирование билетов. В системе есть процессы-читатели, которые  только читают какую-то общую для всех информацию, и писатели, которые могут ее  изменять. Чтение может быть разрешено одновременно, однако при записи доступ  для всех процессов, в. т.ч. и на чтение, должен быть закрыт. Решение:</p>
+  <p><em>typedef </em><em>int </em><em>semaphore</em><em>;</em><br />
+    <em>semaphore </em><em>mutex</em><em> = 1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  контроль доступа к переменной </em><em>rc</em><br />
+    <em>semaphore </em><em>db</em><em>=1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  контроль доступа к базе данных</em><br />
+    <em>int </em><em>rc</em><em>=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  кол-во процессов читающих или желающих читать</em></p>
+  <p><em>void</em><em> reader</em><em>(</em><em>void</em><em>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  процесс читатель</em><br />
+    <em>{</em><em>while</em><em>(1)</em><br />
+    <em>{</em><em>P</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  закрыть доступ к счетчику читателей</em><br />
+    <em>rc</em><em>++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  увеличить его</em><br />
+    <em>if</em><em> (</em><em>rc</em><em>==1) </em><em>P</em><em>(&amp;</em><em>db</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  если процесс первый, закрыть доступ к БД</em><br />
+    <em>V</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  открыть доступ к счетчику</em><br />
+    <em>read</em><em>_</em><em>database</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  чтение БД</em><br />
+    <em>P</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  закрыть доступ к счетчику</em><br />
+    <em>rc</em><em>=</em><em>rc</em><em>-1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  уменьшить его</em><br />
+    <em>if</em><em> (</em><em>rc</em><em>==0) </em><em>V</em><em>(&amp;</em><em>db</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  если нет других читателей (процесс последний) открыть доступ к БД</em><br />
+    <em>V</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  открыть доступ к счетчику</em><br />
+    <em>use</em><em>_</em><em>read</em><em>_</em><em>data</em><em>();}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  использование данных</em></p>
+  <p><em>void</em><em> writer</em><em>(</em><em>void</em><em>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  процессы писатели</em><br />
+    <em>{</em><em>while</em><em>(1)</em><br />
+    <em>{</em><em>make</em><em>_</em><em>data</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  подготовка данных к записи</em><br />
+    <em>P</em><em>(&amp;</em><em>db</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  закрыть доступ</em><br />
+    <em>write</em><em>_</em><em>database</em><em>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  записать данные</em><br />
+    <em>V</em><em>(&amp;</em><em>db</em><em>); }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // открыть доступ</em></p>
+  <p>Первый  читатель закрывает доступ к БД. Остальные всего лишь увеличивают счетчик  читателей. Когда базу покинет последний читатель, он открывает к ней доступ.  Если один читатель уже работает с базой, второй тоже получит к ней доступ и т.д.  Если в этот момент доступ запросит писатель, он перейдет к ожиданию, поскольку  доступ закрыт. Доступ писатель получит только когда базу покинет последний  читатель. </p>
+  <p>Пусть  одновременно начали работу 2 читателя и 1 писатель. Ч2 успевает первым получить  доступ к счетчику rc,  наращивает его. Ч1 ожидает доступа к rc. Ч2  получает доступ к БД, открывает доступ к счетчику. Ч1 разблокируется. В этот  момент диспетчер включает писателя. Тот блокируется на доступе к БД. Ч1  получает доступ к счетчику, увеличивает его. Поскольку rc=2, блокировки на БД не происходит,&nbsp; хотя доступ к БД закрыт. Ч1 заканчивает  чтение, уменьшает счетчик, однако БД не открывает, поскольку rc=1. Ч2 читает данные, уменьшает счетчик,  открывает доступ к БД. Писатель продолжает работу. Если бы П активировался  когда оба читателя не дошли до блокировки базы, он бы начал работу, захватив db. Ч2 был бы заблокирован на db,&nbsp; Ч1  соответственно на mutex. После  освобождения db  писателем, Ч2 продолжил бы работу, захватив доступ к БД, далее разблокировал бы  mutex, и Ч1  также смог бы продолжить работу. Однако такое решение позволяет получить доступ  вновь прибывающим читателям, даже если в системе есть ожидающий писатель. В  результате он может ожидать бесконечно. </p>
+  <table border="1" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="200" valign="top"><p>Mutex &nbsp;&nbsp;&nbsp;Db  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rc</p></td>
+      <td width="161" valign="top"><p align="center">Читатель 1</p></td>
+      <td width="189" valign="top"><p align="center">Читатель 2</p></td>
+      <td width="151" valign="top"><p align="center">Писатель</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>P(&amp;mutex)</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="161" valign="top"><p><em>P(&amp;mutex) // ###</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>rc++</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>if (rc==1) P(&amp;db) // (true)</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p><em>P(&amp;db) // ###</em></p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</em><em> 1</em></p></td>
+      <td width="161" valign="top"><p><em>=&gt;</em></p></td>
+      <td width="189" valign="top"><p><em>V(&amp;mutex)</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="161" valign="top"><p><em>rc++</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2</em></p></td>
+      <td width="161" valign="top"><p><em>if (rc==1) // (false)</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2</em></p></td>
+      <td width="161" valign="top"><p><em>V(&amp;mutex)</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2</em></p></td>
+      <td width="161" valign="top"><p><em>KC</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2</em></p></td>
+      <td width="161" valign="top"><p><em>P(&amp;mutex)</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2</em></p></td>
+      <td width="161" valign="top"><p><em>rc--</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="161" valign="top"><p><em>if(rc==0) // (false)</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="161" valign="top"><p><em>V(&amp;mutex)</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>KC</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>&hellip;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><em>-1</em><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>if(rc==0) V(&amp;db) // (true)</em></p></td>
+      <td width="151" valign="top"><p><em>=&gt;</em></p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p><em>KC</em></p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>V(&amp;mutex)</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="161" valign="top"><p>&nbsp;</p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p><em>V</em><em>(&amp;</em><em>db</em><em>)</em></p></td>
+    </tr>
+    <tr>
+      <td width="130" valign="top"><p><em>1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</em></p></td>
+      <td width="161" valign="top"><p><em>&hellip;</em></p></td>
+      <td width="189" valign="top"><p><em>&nbsp;</em></p></td>
+      <td width="151" valign="top"><p>&nbsp;</p></td>
+    </tr>
+  </table>
+  <p><strong>Задача о парикмахерской.</strong> Есть парикмахерская, в ней один  парикмахер, его кресло и n  стульев для посетителей. Если его услугами никто не пользуется, он спит, сидя в  своем кресле. Когда приходит клиент, он должен разбудить парикмахера. Если  клиент приходит, а мастер занят, то клиент либо садится на стул, если есть  место, либо уходит, когда места нет. Требуется избежать состояния состязания.  Решение: </p>
+  <p><em>#</em><em>define </em><em>CHAIRS</em><em> 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  кол-во стульев</em><br />
+    <em>typedef </em><em>int </em><em>semaphore</em><em>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><br />
+    <em>semaphore </em><em>customers</em><em>=0;&nbsp; // Кол-во ожидающих посетителей</em><br />
+    <em>semaphore </em><em>barbers</em><em>=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  Кол-во брадобреев, готовых к работе</em><br />
+    <em>semaphore </em><em>mutex</em><em>=1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  Для взаимного исключения</em><br />
+    <em>int </em><em>waiting</em><em>=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  ожидающие посетители</em></p>
+  <p><em>void barber(void)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  брабобрей</em><br />
+    <em>{while(1)</em><br />
+    <em>{</em><em>P</em><em>(&amp;</em><em>customers</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // попытка взять клиента</em><br />
+    <em>P</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  получение доступа к счетчику посетителей</em><br />
+    <em>waiting</em><em>--;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  уменьшение его</em><br />
+    <em>V</em><em>(&amp;</em><em>barbers</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  брадобрей готов к работе</em><br />
+    <em>V</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  открыть доступ к счетчику</em><br />
+    <em>cut_hair();}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  обслуживание</em></p>
+  <p><em>void customer(void)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  посетитель</em><br />
+    <em>{P(&amp;mutex);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // </em><em>доступ</em><em>к</em><em>счетчику</em><br />
+    <em>&nbsp; if</em><em>(</em><em>waiting</em><em>&lt;</em><em>CHAIRS</em><em>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  есть свободное место</em><br />
+    <em>{</em><em>waiting</em><em>++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  увеличить число ждущих посетителей</em><br />
+    <em>V</em><em>(&amp;</em><em>customers</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // пришел клиент, разбудить брадобрея</em><br />
+    <em>V</em><em>(&amp;</em><em>mutex</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  открыть доступ</em><br />
+    <em>P</em><em>(</em><em>barbers</em><em>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  доступ к брадобрею</em><br />
+    <em>get</em><em>_</em><em>haircut</em><em>();}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  получить обслуживание</em><br />
+    <em>else</em><em> {</em><em>V</em><em>(&amp;</em><em>mutex</em><em>);}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //  открыть доступ и уйти</em></p>
+  <p>Для  подсчета ожидающих посетителей используется семафор customers, при этом  обслуживаемый клиент не учитывается. Barbers, кол-во готовых к работе брадобреев. Waiting фактически дублирует семафор customers, поскольку прочитать значение семафора  невозможно, а приходящий посетитель должен знать сколько их в очереди, и если  стульев больше, то остаться для ожидания.</p>
+  <p>Начал  работу процесс парикмахер. Он пытается получить доступ к посетителю, и уходит в  ожидание, поскольку семафор =0. Приходит первый посетитель, запрашивает доступ  к счетчику, увеличивает его, открывает семафор, открывает доступ к счетчику,  пытается получить доступ к парикмахеру. Поскольку семафор customer уже открыт, мастер просыпается, получает  доступ к счетчику, уменьшает его, открывает семафор burber, открывает доступ к счетчику. Теперь  посетитель получает доступ к услугам. Приходит 2 клиент. Получает доступ к  счетчику, увеличивает его, увеличивает семафор customers, освобождает доступ к счетчику. Мастер  обслуживает первого клиента, пытается обслужить второго. Поскольку посетитель  есть, то запрашивается доступ к счетчику, счетчик уменьшается, открывается  семафор парикмахера, освобождает счетчик. Второй посетитель пытается получить  доступ в кресло парикмахера и получает его. Посетитель уходит. Парикмахер вновь  пытается пригласить клиента. Их нет, и он переходит к ожиданию.</p>
+
+</BODY>
+</HTML>

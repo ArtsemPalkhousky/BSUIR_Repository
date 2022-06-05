@@ -1,0 +1,276 @@
+<!-- (C) 2011-2012 V.Prytkov, V. Suponev, A.Uvarov. BSUIR -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//RU">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1251">
+<META HTTP-EQUIV="Content-Language" CONTENT="ru">
+<link rel="stylesheet" type="text/css" href="../css/style.css" />
+<title>Лекция №11. Алгоритмы  замещения страниц.</title>
+<base target="_top">
+</HEAD><BODY>
+  <p align="center"><strong>Алгоритмы  замещения страниц</strong></p>
+  <p><em>Стратегии  выборки по запросу и с упреждением. Алгоритмы замещения страниц. Алгоритм </em><em>NRU</em><em>, </em><em>LRU</em><em>, </em><em>FIFO</em><em>, </em><em>NFU</em><em>. Бит  использования страницы. Понятие рабочего набора. Аномалия Билэди. Рабочие  наборы в </em><em>Windows</em></p>
+  <p>При управлении памятью используются 2 стратегии: <strong>стратегия выборки</strong> &ndash; в какой момент  переписывать страницу из вторичной памяти в первичную. Два основных варианта &ndash; <strong>по запросу</strong> и с <strong>упреждением</strong>. В первом случае страница алгоритм работает тогда,  когда программа обращается к отсутствующей странице памяти, которая находится  на диске. Во втором случае помимо отсутствующей страницы загружаются и  несколько окружающих ее страниц, в предположении, что ближайшие адреса тоже  будут необходимы. </p>
+  <p>Стратегия <strong>размещения</strong> &ndash; в какой участок первичной памяти&nbsp;  поместить новую страницу. Стратегия <strong>замещения</strong> &ndash; какую страницу вытолкнуть во внешнюю память, если свободной страницы для  размещения нет.</p>
+  <p><strong>Алгоритмы  замещения страниц.</strong><br />
+    При отсутствии в памяти требуемой страницы, ОС должна не  только найти ее и загрузить, но и еще и определить, вместо какой страницы будет  подгружена новая. Простейший вариант &ndash; случайным образом &ndash; не позволяет достичь  максимальной производительности. <br />
+  <strong>NRU &ndash; не  использовавшаяся в последнее время страница.</strong> Используется информация бит изменения и обращения. Важно реализовать изменение  этих бит при каждом обращении к памяти, поэтому необходимо, чтобы они  задавались аппаратно. Когда процесс запускается оба бита всех его страниц равны  нулю. Периодически, например, по таймеру, бит обращения очищается, чтобы  отличить страницы, к которым давно не было обращений от используемых. Когда  возникает страничное прерывание, система проверяет все страницы. Они делятся на  4 класса:<br />
+    0 &ndash; не было изменений и обращений<br />
+    1 &ndash; не было обращений, но страница изменена<br />
+    2 &ndash; было обращение, страница не изменилась<br />
+    3 &ndash; были и изменения и обращения.<br />
+    Алгоритм NRU (not recently used) &ndash; замещает страницу в  непустом классе с наименьшим номером. Считается, что лучше выгрузить измененную  страницу, к которой не было обращений хотя бы в течение последнего тика  таймера, чем страницу, к которой такие обращения были.<br />
+  <strong>Алгоритм  FIFO.</strong> Система поддерживает список всех  страниц, которые хранятся в памяти, причем в порядке их поступления. Поэтому  самая первая страница является и самой старой. В результате удаляется страница,  находящаяся в начале списка, а новая добавляется в его конец. В таком варианте  алгоритм используется редко.<br />
+  <strong>Вторая  попытка.</strong>&nbsp;  Дополнительно изучается бит обращений. Если он равен 0, старая страница  удаляется, если же нет, то страница переносится в конец списка, бит обнуляется,  и вновь проверяется страница, находящаяся теперь первой. Т.е. алгоритм ищет  самую старую страницу, к которой не было обращений. Если обращения были ко всем  страницам, алгоритм вырождается в обычный FIFO. Эффективность алгоритма  снижается из-за необходимости перемещать страницы по списку.</p>
+  <p>Интуитивно кажется, что чем больше страниц на диске, тем  меньше страничных прерываний вызывается программой. Рассмотрим FIFO с 3 страницами и 4:</p>
+  <table border="1" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="180" valign="top"><p align="left"><strong>&nbsp;</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>0</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>1</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>2</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>3</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>0</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>1</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>4</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>0</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>1</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>2</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>3</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>4</strong></p></td>
+      <td width="213" valign="top"><p align="left"><strong>&nbsp;</strong></p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">Самая    новая страница</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="213" valign="top"><p align="left">&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="213" valign="top"><p align="left">&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">Самая    старая страница</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="213" valign="top"><p align="left">&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="213" valign="top"><p align="center">9    страничных прерываний</p></td>
+    </tr>
+  </table>
+  <table border="1" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="180" valign="top"><p align="left"><strong>&nbsp;</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>0</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>1</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>2</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>3</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>0</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>1</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>4</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>0</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>1</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>2</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>3</strong></p></td>
+      <td width="26" valign="top"><p align="center"><strong>4</strong></p></td>
+      <td width="213" valign="top"><p align="left"><strong>&nbsp;</strong></p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">Самая    новая страница</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="213" valign="top"><p align="left">&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="213" valign="top"><p align="left">&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="213" valign="top"><p align="left">&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">Самая    старая страница</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="26" valign="top"><p align="center">2</p></td>
+      <td width="26" valign="top"><p align="center">3</p></td>
+      <td width="26" valign="top"><p align="center">4</p></td>
+      <td width="26" valign="top"><p align="center">0</p></td>
+      <td width="26" valign="top"><p align="center">1</p></td>
+      <td width="213" valign="top"><p align="left">&nbsp;</p></td>
+    </tr>
+    <tr>
+      <td width="180" valign="top"><p align="left">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">&nbsp;</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="26" valign="top"><p align="center">Р</p></td>
+      <td width="213" valign="top"><p align="center">10    страничных прерываний</p></td>
+    </tr>
+  </table>
+  <p align="left">Как видно, система с большим числом  страниц при определенной стратегии замещения и определенной последовательности  обращений к страницам, может вызвать большее число страничных прерываний, т.е.  оказаться менее производительной. Такая ситуация называется <strong>аномалией Биледи</strong>.<br />
+    Существует класс <strong>магазинных  алгоритмов</strong>, у которых выполняется следующее условие: М(m,r)&#8838;M(m+1,r), где m-число страничных блоков, r-индекс в  последовательности обращений, M &ndash; страничный  массив. Т.е. множество виртуальных страниц, после r  обращений попавших в физическую память, для памяти, имеющей m страничных блоков, также попадает в физическую память, если  она состоит из m+1 блока.  Они не подвержены аномалии Биледи. В частности, алгоритм LRU удовлетворяет  этому требованию.</p>
+  <p><strong>Часы.</strong> Записи хранятся в списке в виде кольца, и имеется текущий  указатель. При необходимости замещения проверяется та запись, на которую  направлен текущий указатель. Если бит обращений равен 0, на ее место  загружается новая страница, а указатель перемещается к следующей записи. Если 1  &ndash; бит сбрасывается, указатель перемещается и вновь выполняется проверка бита.<br />
+    <strong>Алгоритм  LRU</strong>&nbsp;  last recently used- дольше всего не использовавшаяся страница.  Замещается та страница, к которой дольше всего не было обращений. Для  реализации алгоритма необходим список страниц, где последняя использовавшаяся  страница находится в начале списка, а дольше всего неиспользуемая &ndash; в конце.  Список должен обновляться при каждом обращении к памяти. Другой вариант  реализации &ndash; в таблице добавляется поле, хранящее значение таймера. При  замещении ищется страница с наименьшим значением. Еще один вариант реализации &ndash;  аппаратно поддерживается матрица NxN, где N &ndash; число страниц. Изначально матрица  нулевая. При обращении к блоку i, всем битам строки i присваивается 1, затем  всем битам столбца i присваивается 0. В любой момент времени строка, двоичное  значение которой наименьшее, является не используемой дольше всего.<br />
+    <strong>Алгоритм</strong><strong> NFU</strong>. not frequently used &ndash; редко используемая. Разновидность предыдущего алгоритма. С каждой страницей памяти  связан программный счетчик, изначально равный нулю. Периодически (по таймеру)  бит использования прибавляется к счетчику. При замещении выбирается страница с  наименьшим значением счетчика. Проблема в том, что если какая-то часть  программы работала долго, но теперь уже не используется, то последующие части  все равно будут с меньшим значением счетчика, и соответственно, произойдет  удаление используемых страниц. <br />
+    <strong>Старение.</strong> Модификация предыдущего алгоритма: бит использования  добавляется не в правый, а в левый бит счетчика, и перед добавлением счетчик  сдвигается вправо. </p>
+  <table border="1" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="732" colspan="5" valign="top"><br />
+        Биты R для страниц 0-5 по тактам </td>
+    </tr>
+    <tr>
+      <td width="146" valign="top"><p>101011</p></td>
+      <td width="146" valign="top"><p>110010</p></td>
+      <td width="146" valign="top"><p>110101</p></td>
+      <td width="146" valign="top"><p>100010</p></td>
+      <td width="146" valign="top"><p>011000</p></td>
+    </tr>
+    <tr>
+      <td width="732" colspan="5" valign="top"><p>Счетчики страниц по тактам</p></td>
+    </tr>
+    <tr>
+      <td width="146" valign="top"><p>10000000</p></td>
+      <td width="146" valign="top"><p>11000000</p></td>
+      <td width="146" valign="top"><p>11100000</p></td>
+      <td width="146" valign="top"><p>11110000</p></td>
+      <td width="146" valign="top"><p>01111000</p></td>
+    </tr>
+    <tr>
+      <td width="146" valign="top"><p>00000000</p></td>
+      <td width="146" valign="top"><p>10000000</p></td>
+      <td width="146" valign="top"><p>11000000</p></td>
+      <td width="146" valign="top"><p>01100000</p></td>
+      <td width="146" valign="top"><p>10110000</p></td>
+    </tr>
+    <tr>
+      <td width="146" valign="top"><p>10000000</p></td>
+      <td width="146" valign="top"><p>01000000</p></td>
+      <td width="146" valign="top"><p>00100000</p></td>
+      <td width="146" valign="top"><p>00010000</p></td>
+      <td width="146" valign="top"><p>10001000</p></td>
+    </tr>
+    <tr>
+      <td width="146" valign="top"><p>00000000</p></td>
+      <td width="146" valign="top"><p>00000000</p></td>
+      <td width="146" valign="top"><p>10000000</p></td>
+      <td width="146" valign="top"><p>01000000</p></td>
+      <td width="146" valign="top"><p>00100000</p></td>
+    </tr>
+    <tr>
+      <td width="146" valign="top"><p>10000000</p></td>
+      <td width="146" valign="top"><p>11000000</p></td>
+      <td width="146" valign="top"><p>01100000</p></td>
+      <td width="146" valign="top"><p>10110000</p></td>
+      <td width="146" valign="top"><p>01011000</p></td>
+    </tr>
+    <tr>
+      <td width="146" valign="top"><p>10000000</p></td>
+      <td width="146" valign="top"><p>01000000</p></td>
+      <td width="146" valign="top"><p>10100000</p></td>
+      <td width="146" valign="top"><p>01010000</p></td>
+      <td width="146" valign="top"><p>00101000</p></td>
+    </tr>
+  </table>
+  <p><strong>Алгоритм  Рабочий набор.</strong> Во время выполнения фрагмента кода,  процесс обращается как правило к небольшой части своих страниц. Множество  страниц, которое процесс использует в данный момент, называется рабочим  набором. Если рабочий набор целиком находится в памяти, процесс будет работать  практически не вызывая прерываний из-за отсутствия страницы. Если же в памяти  не удается разместить весь рабочий набор, процесс вызовет большое количество  страничных прерываний, в результате замедляя работу.&nbsp; При повторном запуске процесса вновь будут  вызываться страничные прерывания до тех пор, пока в памяти не окажется весь  страничный набор. Многие системы со страничной организацией пытаются отследить  рабочий набор каждого процесса и сохраняют его до запуска нового процесса.  Загрузка страниц перед тем, как разрешить процессу работу, называется  опережающей подкачкой страниц. Если ОС постоянно отслеживает рабочий набор  процесса, то при необходимости замены страницы в памяти можно реализовать  следующую стратегию: замена той страницы, которая не входит в рабочий набор.  Фактически отслеживается, какие из страниц использовались за последние k тактов  таймера. Страницы, использовавшиеся в этот отрезок времени, входят в рабочий  набор. Алгоритм достаточно громоздок, поскольку при каждом страничном  прерывании требует проверки таблицы страниц.</p>
+  <p><strong>Алгоритм  WSClock.</strong> Основан на часовом алгоритме, но с  использованием информации о рабочем наборе. Ведется структура в виде кольцевого  списка страничных блоков. Вначале список пустой. По мере прихода страниц, они  поступают в список, формируя кольцо. Каждая запись, кроме бит R и M, содержат  время последнего использования. Если бит R равен&nbsp; 1, это значит, что страница использовалась за  последний тик таймера, и не является оптимальным кандидатом на удаление. Если  бит R равен 0, и времени от момента последнего использования прошло много, то  страница не входит в рабочий набор, и в данный страничный блок просто  загружается новая страница. Если у такой страницы были изменения, и ее необходимо  сохранить на диск. Чтобы избежать переключения процессов, запись на диск  записывается в очередь планировщика, а указатель-стрелка на начало (текущую  запись)</p>
+  <p>В многозадачных системах встает следующий вопрос: при  необходимости замещения страницы следует учитывать только&nbsp; страницы активного процесса или же все  страницы памяти? В первом случае речь идет о локальных алгоритмах замещения  страниц, во втором &ndash; о глобальных. В целом глобальные алгоритмы работают лучше.</p>
+  <p>Windows поддерживает <strong>рабочие  наборы </strong>&ndash; это подмножество виртуальных страниц, резидентных в физической  памяти. № вида рабочих наборов: процесса, системы, сеанса. Диспетчер памяти  использует алгоритм подкачки по требованию с кластеризацией, т.е. с  упреждением. Используется 2 алгоритма замещения: LRU и FIFO.  По умолчанию ОС устанавливает минимальную и максимальную величину рабочего  набора для процесса &ndash; 50 и 345 страниц соответственно. Функция SetProcessWorkingSetSize позволяет их изменить при наличии привилегии Increase Scheduling Priority.  Однако жестко установить лимиты позволяет только Windows Server 2003, в  остальных случаях диспетчер памяти позволяет как превышать допустимый размер  рабочего набора при наличии достаточного объема свободной памяти, так и  уменьшать его ниже лимита при отсутствии подкачки и при потребности ОС в  большом объеме физической памяти. Максимально допустимый размер рабочего набора  колеблется от 1984 Мб до 8192 Гб в зависимости от версии Windows и  аппаратной платформы.</p>
+
+</BODY>
+</HTML>
