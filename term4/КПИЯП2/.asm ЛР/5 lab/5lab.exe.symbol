@@ -1,0 +1,65 @@
+< THE SYMBOL TABLE >  5lab.exe  --  emu8086 assembler version: 4.05 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+STACK                    	00000     	-5        	SEGMENT   	(ITSELF)  
+DATA                     	00010     	-5        	SEGMENT   	(ITSELF)  
+STARTDX                  	00000     	2         	VAR       	data      
+TEMPDX                   	00002     	2         	VAR       	data      
+FLAGTEMP                 	00004     	2         	VAR       	data      
+FLAGSTART                	00006     	2         	VAR       	data      
+CMD_SIZE                 	00008     	1         	VAR       	data      
+CMD_TEXT                 	00009     	1         	VAR       	data      
+SOURCEPATH               	0008A     	1         	VAR       	data      
+TEMPSOURCEPATH           	0010B     	1         	VAR       	data      
+DESTINATIONPATH          	0018B     	1         	VAR       	data      
+EXTENSION                	00196     	1         	VAR       	data      
+POINT2                   	00199     	1         	VAR       	data      
+BUF                      	0019A     	1         	VAR       	data      
+SOURCEID                 	0019B     	2         	VAR       	data      
+DESTINATIONID            	0019D     	2         	VAR       	data      
+ENTEREDSTRING            	0019F     	1         	VAR       	data      
+ENTEREDSTRINGSIZE        	00267     	2         	VAR       	data      
+STARTPROCESSING          	00269     	1         	VAR       	data      
+STARTTEXT                	0027C     	1         	VAR       	data      
+BADCMDARGSMESSAGE        	0028F     	1         	VAR       	data      
+BADSOURCETEXT            	002AB     	1         	VAR       	data      
+FILENOTFOUNDTEXT         	002B6     	1         	VAR       	data      
+ENDTEXT                  	002C5     	1         	VAR       	data      
+ERRORREADSOURCETEXT      	002D8     	1         	VAR       	data      
+CODE                     	00040     	-5        	SEGMENT   	(ITSELF)  
+INCREMENTSTARTPOS        	00000     	-1        	NEAR      	code      
+OVERFLOW                 	0000C     	-1        	LABEL     	code      
+ENDINCREMENT             	00016     	-1        	LABEL     	code      
+SETPOINTER               	0001F     	-1        	NEAR      	code      
+SETPOS1                  	00045     	-1        	LABEL     	code      
+ENDSETPOS                	0005D     	-1        	LABEL     	code      
+MAIN                     	00060     	-1        	LABEL     	code      
+ENDMAIN                  	000E8     	-1        	LABEL     	code      
+PARSECMD                 	00103     	-1        	NEAR      	code      
+FINDPOINT                	0011B     	-1        	LABEL     	code      
+NOTFOUND                 	00126     	-1        	LABEL     	code      
+POINTFOUND               	00141     	-1        	LABEL     	code      
+OPENFILES                	00174     	-1        	NEAR      	code      
+BADOPENSOURCE            	001A3     	-1        	LABEL     	code      
+ERRORFOUND               	001D8     	-1        	LABEL     	code      
+ENDOPENPROC              	001DB     	-1        	LABEL     	code      
+PROCESSINGFILE           	001DF     	-1        	NEAR      	code      
+FOR1                     	001DF     	-1        	LABEL     	code      
+FOR2                     	001F8     	-1        	LABEL     	code      
+OVERFLOWTEMPPOS          	00204     	-1        	LABEL     	code      
+ENDINCREMENTTEMPPOS      	00210     	-1        	LABEL     	code      
+ENDSTRING                	00240     	-1        	LABEL     	code      
+DOSOMETHING              	00245     	-1        	LABEL     	code      
+STRINGUDOV               	0026E     	-1        	LABEL     	code      
+ENDFILEGG                	00274     	-1        	LABEL     	code      
+WRITESTR                 	00275     	-1        	NEAR      	code      
+WHILE1                   	0028C     	-1        	LABEL     	code      
+ENDWRITE                 	002B1     	-1        	LABEL     	code      
+ENDALL                   	002BB     	-1        	LABEL     	code      
+READSYMBOLFROMFILE       	002BC     	-1        	NEAR      	code      
+SUCCESSFULLYREAD         	002E8     	-1        	LABEL     	code      
+===================================================================================================
+[ 15.06.2021  --  16:41:12 ] 
+< END >
+ 

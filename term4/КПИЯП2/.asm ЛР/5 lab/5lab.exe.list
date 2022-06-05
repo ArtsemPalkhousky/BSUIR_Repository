@@ -1,0 +1,594 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+5lab.exe -- emu8086 assembler version: 4.05  
+ 
+[ 15.06.2021  --  16:41:12 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       .model small
+[   2]        :                                       
+[   3]        :                                       .stack 100h
+[   4]        :                                       
+[   5]        :                                       .data
+[   6]        :                                       
+[   7]    0100: 00 00                                 startDX               dw  0
+[   8]    0102: 00 00                                 tempDX                dw  0
+[   9]    0104: 00 00                                 flagTemp              dw  0
+[  10]    0106: 00 00                                 flagStart             dw  0
+[  11]        :                                       
+[  12]        :                                       maxCMDSize equ 127
+[  13]    0108: 00                                    cmd_size              db  ?
+[  14]    0109: 00 00 00 00 00 00 00 00 00 00 00 00   cmd_text              db  maxCMDSize + 2 dup(0)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00          
+[  15]    018A: 00 00 00 00 00 00 00 00 00 00 00 00   sourcePath            db  129 dup (0)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00          
+[  16]    020B: 00 00 00 00 00 00 00 00 00 00 00 00   tempSourcePath        db  128 dup (0)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00             
+[  17]        :                                       
+[  18]        :                                       ;path                  db "kol.txt",0
+[  19]    028B: 6F 75 74 70 75 74 2E 74 78 74 00      destinationPath       db  "output.txt",0
+[  20]    0296: 74 78 74                              extension             db "txt"
+[  21]    0299: 2E                                    point2                db '.'
+[  22]    029A: 00                                    buf                   db  0
+[  23]    029B: 00 00                                 sourceID              dw  0
+[  24]    029D: 00 00                                 destinationID         dw  0
+[  25]        :                                       
+[  26]        :                                       newLineSymbol         equ 0Dh
+[  27]        :                                       returnSymbol          equ 0Ah
+[  28]        :                                       endl                  equ 0
+[  29]        :                                       
+[  30]    029F: 24 24 24 24 24 24 24 24 24 24 24 24   enteredString         db 200 dup("$")
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24             
+[  31]    0367: 00 00                                 enteredStringSize     dw 0
+[  32]        :                                       
+[  33]    0369: 50 72 6F 63 65 73 73 69 6E 67 20 73   startProcessing       db "Processing started",                                                '$'
+                74 61 72 74 65 64 24                
+[  34]    037C: 50 72 6F 67 72 61 6D 20 69 73 20 73   startText             db  "Program is started",                                               '$'
+                74 61 72 74 65 64 24                
+[  35]    038F: 42 61 64 20 63 6F 6D 6D 61 6E 64 2D   badCMDArgsMessage     db  "Bad command-line arguments.",                                      '$'
+                6C 69 6E 65 20 61 72 67 75 6D 65 6E 
+                74 73 2E 24                         
+[  36]    03AB: 4F 70 65 6E 20 65 72 72 6F 72 24      badSourceText         db  "Open error",                                                       '$'
+[  37]    03B6: 46 69 6C 65 20 6E 6F 74 20 66 6F 75   fileNotFoundText      db  "File not found",                                                   '$'
+                6E 64 24                            
+[  38]    03C5: 0D 0A 50 72 6F 67 72 61 6D 20 69 73   endText               db  0Dh,0Ah,"Program is ended",                                         '$'
+                20 65 6E 64 65 64 24                
+[  39]    03D8: 45 72 72 6F 72 20 72 65 61 64 69 6E   errorReadSourceText   db  "Error reading from source file",                                   '$'
+                67 20 66 72 6F 6D 20 73 6F 75 72 63 
+                65 20 66 69 6C 65 24                
+[  40]        :                                       
+[  41]        :                                       .code
+[  42]        :                                       
+[  43]        :                                       scanf MACRO string
+[  44]        :                                       push ax
+[  45]        :                                       push dx
+[  46]        :                                       
+[  47]        :                                       lea dx, string
+[  48]        :                                       mov ah, 0Ah
+[  49]        :                                       int 21h
+[  50]        :                                       
+[  51]        :                                       pop dx
+[  52]        :                                       pop ax
+[  53]        :                                       endm
+[  54]        :                                       
+[  55]        :                                       println MACRO info          ;
+[  56]        :                                       	push ax                 ;
+[  57]        :                                       	push dx                 ;
+[  58]        :                                       ;
+[  59]        :                                       	mov ah, 09h             ; Команда вывода
+[  60]        :                                       	lea dx, info            ; Загрузка в dx смещения выводимого сообщения
+[  61]        :                                       	int 21h                 ; Вызов прервывания для выполнения вывода
+[  62]        :                                       ;
+[  63]        :                                       	mov dl, 0Ah             ; Символ перехода на новую строку
+[  64]        :                                       	mov ah, 02h             ; Команда вывода символа
+[  65]        :                                       	int 21h                 ; Вызов прерывания
+[  66]        :                                       ;
+[  67]        :                                       	mov dl, 0Dh             ; Символ перехода в начало строки
+[  68]        :                                       	mov ah, 02h             ;
+[  69]        :                                       	int 21h                 ;
+[  70]        :                                       ;
+[  71]        :                                       	pop dx                  ;
+[  72]        :                                       	pop ax                  ;
+[  73]        :                                       ENDM
+[  74]        :                                       
+[  75]        :                                       strcpy MACRO destination, source, count       ;Макрос, предназначенный для копирования из source в destination заданное количество символов
+[  76]        :                                       push cx
+[  77]        :                                       push di
+[  78]        :                                       push si
+[  79]        :                                       
+[  80]        :                                       xor cx, cx
+[  81]        :                                       
+[  82]        :                                       mov cl, count
+[  83]        :                                       lea si, source
+[  84]        :                                       lea di, destination
+[  85]        :                                       
+[  86]        :                                       rep movsb
+[  87]        :                                       
+[  88]        :                                       pop si
+[  89]        :                                       pop di
+[  90]        :                                       pop cx
+[  91]        :                                       ENDM
+[  92]        :                                       
+[  93]        :                                       incrementTempPos MACRO num          ;Инкрементируем tempDX, если произошло переполнение фиксируем это
+[  94]        :                                       add tempDX, num
+[  95]        :                                       jo overflowTempPos
+[  96]        :                                       jmp endIncrementTempPos
+[  97]        :                                       
+[  98]        :                                       overflowTempPos:
+[  99]        :                                       inc flagTemp
+[ 100]        :                                       add tempDX, 32769
+[ 101]        :                                       jmp endIncrementTempPos
+[ 102]        :                                       
+[ 103]        :                                       endIncrementTempPos:
+[ 104]        :                                       
+[ 105]        :                                       endm
+[ 106]        :                                       
+[ 107]    0400:                                       incrementStartPos proc          ; Инкрементируем startDX, если произошло переполнение фиксируем это
+[ 108]    0400: 50                                    push ax
+[ 109]        :                                       
+[ 110]    0401: A1 02 00                              mov ax, tempDX
+[ 111]    0404: 01 06 00 00                           add startDX, ax
+[ 112]    0408: 70 02                                 jo overflow
+[ 113]    040A: EB 0A                                 jmp endIncrement
+[ 114]        :                                       
+[ 115]    040C:                                       overflow:
+[ 116]    040C: FF 06 06 00                           inc flagStart
+[ 117]    0410: 81 06 00 00 01 80                     add startDX, 32769
+[ 118]        :                                       
+[ 119]    0416:                                       endIncrement:
+[ 120]    0416: A1 04 00                              mov ax, flagTemp
+[ 121]    0419: 01 06 06 00                           add flagStart, ax
+[ 122]        :                                       
+[ 123]    041D: 58                                    pop ax
+[ 124]    041E: C3                                    ret
+[ 125]        :                                       endp
+[ 126]        :                                       
+[ 127]        :                                       fseekCurrent MACRO settingPos
+[ 128]        :                                       push ax
+[ 129]        :                                       	push cx
+[ 130]        :                                       	push dx
+[ 131]        :                                       	
+[ 132]        :                                       	mov ah, 42h                 ; Записываем в ah код 42h - ф-ция DOS уставноки указателя файла
+[ 133]        :                                       	mov al, 1                   ; 1 - перемещение указателя от текущей позиции
+[ 134]        :                                       	mov cx, 0                   ; Обнуляем cx,
+[ 135]        :                                       	mov dx, settingPos	        ; Обнуляем dx, т.е премещаем указатель на 0 символов от начала файла (cx*65536)+dx
+[ 136]        :                                       	int 21h                     ; Вызываем прерывания DOS для исполнения команды
+[ 137]        :                                       
+[ 138]        :                                       	pop dx
+[ 139]        :                                       	pop cx
+[ 140]        :                                       	pop ax
+[ 141]        :                                       ENDM
+[ 142]        :                                       
+[ 143]        :                                       fseek MACRO fseekPos
+[ 144]        :                                       push ax
+[ 145]        :                                       	push cx
+[ 146]        :                                       	push dx
+[ 147]        :                                       	
+[ 148]        :                                       	mov ah, 42h                 ; Записываем в ah код 42h - ф-ция DOS уставноки указателя файла
+[ 149]        :                                       	mov al, 0 			        ; 0 - код перемещения указателя в начало файла
+[ 150]        :                                       	mov cx, 0                   ; Обнуляем cx,
+[ 151]        :                                       	mov dx, fseekPos            ; Обнуляем dx, т.е премещаем указатель на 0 символов от начала файла (cx*65536)+dx
+[ 152]        :                                       	int 21h                     ; Вызываем прерывания DOS для исполнения команды
+[ 153]        :                                       
+[ 154]        :                                       	pop dx
+[ 155]        :                                       	pop cx
+[ 156]        :                                       	pop ax
+[ 157]        :                                       
+[ 158]        :                                       ENDM
+[ 159]        :                                       
+[ 160]    041F:                                       setPointer proc                 ; Функция, устанавливающая указатель в файле на позицию, зависящую от startDX и flagStart
+[ 161]    041F: 51                                    push cx
+[ 162]    0420: 53                                    push bx
+[ 163]        :                                       
+[ 164]    0421: 8B 1E 9B 01                           mov bx, sourceID
+[ 165]    0425: 50 51 52 B4 42 B0 00 B9 00 00 8B 16   fseek startDX
+                00 00 CD 21 5A 59 58                
+[ 166]        :                                       
+[ 167]    0438: 83 3E 06 00 00                        cmp flagStart, 0
+[ 168]    043D: 74 1E                                 je endSetPos
+[ 169]    043F: 33 C9                                 xor cx, cx
+[ 170]    0441: 8B 0E 06 00                           mov cx, flagStart
+[ 171]        :                                       
+[ 172]    0445:                                       setPos1:
+[ 173]    0445: 8B 1E 9B 01                           mov bx, sourceID
+[ 174]    0449: 50 51 52 B4 42 B0 01 B9 00 00 BA FF   fseekCurrent 32767
+                7F CD 21 5A 59 58                   
+[ 175]    045B: E2 E8                                 loop setPos1
+[ 176]        :                                       
+[ 177]    045D:                                       endSetPos:
+[ 178]        :                                       
+[ 179]    045D: 5B                                    pop bx
+[ 180]    045E: 59                                    pop cx
+[ 181]    045F: C3                                    ret
+[ 182]        :                                       endp
+[ 183]        :                                       
+[ 184]    0460:                                       main:
+[ 185]    0460: B8 10 00                              	mov ax, @data           ; Загружаем данные
+[ 186]    0463: 8E C0                                 	mov es, ax              ;
+[ 187]        :                                       ;
+[ 188]    0465: 32 ED                                 	xor ch, ch              ; Обнуляем ch
+[ 189]    0467: 3E 8A 0E 80 00                        	mov cl, ds:[80h]		; Количество символов строки, переданной через командную строку
+[ 190]    046C: 8A D9                                 	mov bl, cl
+[ 191]    046E: 88 0E 08 00                           	mov cmd_size, cl 		; В cmd_size загружаем длину командной строки
+[ 192]    0472: FE CB                                 	dec bl                  ; Уменьшаем значение количества символов в строке на 1, т.к. первый символ пробел
+[ 193]    0474: BE 81 00                              	mov si, 81h             ; Смещение на параметр, переданный через командную строки
+[ 194]    0477: BF 0B 01                              	lea di, tempSourcePath
+[ 195]        :                                       	
+[ 196]    047A: F3 A4                                 	rep movsb               ; Записать в ячейку адресом ES:DI байт из ячейки DS:SI
+[ 197]        :                                       	
+[ 198]    047C: 8E D8                                 	mov ds, ax              ; Загружаем в ds данные
+[ 199]    047E: 88 1E 08 00                           	mov cmd_size, bl
+[ 200]        :                                       	
+[ 201]    0482: 8A CB                                 mov cl, bl
+[ 202]    0484: BF 09 00                              	lea di, cmd_text
+[ 203]    0487: BE 0B 01                              	lea si, tempSourcePath
+[ 204]    048A: 46                                    	inc si
+[ 205]    048B: F3 A4                                 	rep movsb
+[ 206]        :                                       	
+[ 207]    048D: 50 52 B4 09 BA 7C 02 CD 21 B2 0A B4   	println startText       ; Вывод строки о начале работы программы
+                02 CD 21 B2 0D B4 02 CD 21 5A 58    
+[ 208]        :                                       
+[ 209]    04A4: E8 5C 00                              	call parseCMD           ; Вызов процедуры парсинга командной строки
+[ 210]    04A7: 3D 00 00                              	cmp ax, 0
+[ 211]    04AA: 75 3C                                 	jne endMain				; Если ax != 0, т.е. при выполении процедуры произошла ошибка - завершаем программу
+[ 212]        :                                       
+[ 213]    04AC: E8 C5 00                              	call openFiles          ; Вызываем процедуру, которая открывает файл, переданный через командную строку и файл для записи результата
+[ 214]    04AF: 3D 00 00                              	cmp ax, 0
+[ 215]    04B2: 75 34                                 	jne endMain				
+[ 216]        :                                       
+[ 217]    04B4: 50 52 BA 9F 01 B4 0A CD 21 5A 58      scanf enteredString         ; Вводим последовательность символов
+[ 218]    04BF: 33 C0                                 xor ax, ax                  ; Запоминаем длину введенной последовательности
+[ 219]    04C1: A0 A0 01                              mov al, [enteredString+1]
+[ 220]    04C4: A3 67 02                              mov enteredStringSize, ax
+[ 221]        :                                       
+[ 222]    04C7: 83 3E 67 02 00                        cmp enteredStringSize, 0    ; Если введенная строка пуста нет смысла проверять файл, следовательно заверашем программу
+[ 223]    04CC: 74 1A                                 je endMain
+[ 224]    04CE: 50 52 B4 09 BA 69 02 CD 21 B2 0A B4   println startProcessing
+                02 CD 21 B2 0D B4 02 CD 21 5A 58    
+[ 225]    04E5: E8 F7 00                              	call processingFile
+[ 226]        :                                       
+[ 227]    04E8:                                       endMain:
+[ 228]    04E8: 50 52 B4 09 BA C5 02 CD 21 B2 0A B4   	println endText             ; Выводим сообщение о завершении работы программы
+                02 CD 21 B2 0D B4 02 CD 21 5A 58    
+[ 229]        :                                       
+[ 230]    04FF: B4 4C                                 	mov ah, 4Ch                 ; Загружаем в ah код команды завершения работы
+[ 231]    0501: CD 21                                 	int 21h                     ; Вызов прерывания DOS для ее исполнения
+[ 232]        :                                       	
+[ 233]    0503:                                       parseCMD proc
+[ 234]    0503: 33 C0                                 xor ax, ax
+[ 235]    0505: 33 C9                                 xor cx, cx
+[ 236]        :                                       
+[ 237]    0507: 80 3E 08 00 00                        cmp cmd_size, 0             ; Если параметр не был передан, то переходим в notFound
+[ 238]    050C: 74 18                                 je notFound
+[ 239]        :                                       
+[ 240]    050E: 8A 0E 08 00                           mov cl, cmd_size
+[ 241]        :                                       
+[ 242]    0512: BF 09 00                              lea di, cmd_text
+[ 243]    0515: A0 08 00                              mov al, cmd_size
+[ 244]    0518: 03 F8                                 add di, ax
+[ 245]    051A: 4F                                    dec di
+[ 246]        :                                       
+[ 247]    051B:                                       findPoint:                      ; Ищем точку с конца файла, т.к. после неё идет разширение файла
+[ 248]    051B: B0 2E                                 mov al, '.'
+[ 249]    051D: 8A 1D                                 mov bl, [di]
+[ 250]    051F: 3A C3                                 cmp al, bl
+[ 251]    0521: 74 1E                                 je pointFound
+[ 252]    0523: 4F                                    dec di
+[ 253]    0524: E2 F5                                 loop findPoint
+[ 254]        :                                       
+[ 255]    0526:                                       notFound:                       ; Если точка не найдена выводим badCMDArgsMessage и завершаем программу
+[ 256]    0526: 50 52 B4 09 BA 8F 02 CD 21 B2 0A B4   println badCMDArgsMessage
+                02 CD 21 B2 0D B4 02 CD 21 5A 58    
+[ 257]    053D: B8 01 00                              mov ax, 1
+[ 258]    0540: C3                                    ret
+[ 259]        :                                       
+[ 260]    0541:                                       pointFound:                     ; Количество символов должно быть равно 3, т.к. "txt", если отлично от этого => файл не подходит
+[ 261]    0541: A0 08 00                              mov al, cmd_size
+[ 262]    0544: 2B C1                                 sub ax, cx
+[ 263]    0546: 3D 03 00                              cmp ax, 3
+[ 264]        :                                       
+[ 265]    0549: 75 DB                                 jne notFound
+[ 266]        :                                       
+[ 267]        :                                       
+[ 268]    054B: 33 C0                                 xor ax, ax
+[ 269]    054D: BF 09 00                              lea di, cmd_text
+[ 270]    0550: BE 96 01                              lea si, extension
+[ 271]    0553: 03 F9                                 add di, cx
+[ 272]        :                                       
+[ 273]    0555: B9 03 00                              mov cx, 3
+[ 274]        :                                       
+[ 275]    0558: F3 A6                                 repe cmpsb                  ; Сравниваем со строкой Extension расширение файла, если всё совпало - копируем адрес файла в sourcePath
+[ 276]    055A: 75 CA                                 jne notFound
+[ 277]        :                                       
+[ 278]    055C: 51 57 56 33 C9 8A 0E 08 00 BE 09 00   strcpy sourcePath, cmd_text, cmd_size
+                BF 8A 00 F3 A4 5E 5F 59             
+[ 279]    0570: B8 00 00                              mov ax, 0
+[ 280]    0573: C3                                    ret
+[ 281]        :                                       endp
+[ 282]        :                                       
+[ 283]    0574:                                       openFiles PROC
+[ 284]    0574: 53                                    	push bx
+[ 285]    0575: 52                                    	push dx
+[ 286]    0576: 56                                    	push si
+[ 287]        :                                       
+[ 288]    0577: B4 3D                                 	mov ah, 3Dh			        ; Функция 3Dh - открыть существующий файл
+[ 289]    0579: B0 02                                 	mov al, 02h			        ; Режим открытия файла - чтение
+[ 290]    057B: BA 8A 00                              	lea dx, sourcePath          ; Загружаем в dx название исходного файла
+[ 291]    057E: CD 21                                 	int 21h
+[ 292]        :                                       
+[ 293]    0580: 72 21                                 	jb badOpenSource	        ; Если файл не открылся, то прыгаем в badOpenSource
+[ 294]        :                                       
+[ 295]    0582: A3 9B 01                              	mov sourceID, ax	        ; Загружаем в sourceId значение из ax, полученное при открытии файла
+[ 296]        :                                       
+[ 297]    0585: B4 3C                                 mov ah, 3Ch                 ; Функция 3Ch - создать файл
+[ 298]    0587: 33 C9                                 xor cx, cx
+[ 299]    0589: BA 8B 01                              lea dx, destinationPath
+[ 300]    058C: CD 21                                 int 21h
+[ 301]        :                                       
+[ 302]    058E: 72 13                                 jb badOpenSource
+[ 303]        :                                       
+[ 304]    0590: B4 3D                                 mov ah, 3Dh
+[ 305]    0592: B0 02                                 mov al, 02h
+[ 306]    0594: BA 8B 01                              lea dx, destinationPath
+[ 307]    0597: CD 21                                 int 21h
+[ 308]        :                                       
+[ 309]    0599: 72 08                                 jb badOpenSource
+[ 310]        :                                       
+[ 311]    059B: A3 9D 01                              mov destinationID, ax
+[ 312]        :                                       
+[ 313]    059E: B8 00 00                              	mov ax, 0			        ; Загружаем в ax 0, т.е. ошибок во время выполнения процедуры не произшло
+[ 314]    05A1: EB 38                                 	jmp endOpenProc		        ; Прыгаем в endOpenProc и корректно выходим из процедуры
+[ 315]        :                                       
+[ 316]    05A3:                                       badOpenSource:
+[ 317]    05A3: 50 52 B4 09 BA AB 02 CD 21 B2 0A B4   	println badSourceText       ; Выводим соответсвующее сообщение
+                02 CD 21 B2 0D B4 02 CD 21 5A 58    
+[ 318]        :                                       	
+[ 319]    05BA: 3D 02 00                              	cmp ax, 02h                 ; Сравниваем ax с 02h
+[ 320]    05BD: 75 19                                 	jne errorFound              ; Если ax != 02h file error, прыгаем в errorFound
+[ 321]        :                                       
+[ 322]    05BF: 50 52 B4 09 BA B6 02 CD 21 B2 0A B4   	println fileNotFoundText    ; Выводим сообщение о том, что файл не найден
+                02 CD 21 B2 0D B4 02 CD 21 5A 58    
+[ 323]        :                                       
+[ 324]    05D6: EB 00                                 	jmp errorFound              ; Прыгаем в errorFound
+[ 325]        :                                       
+[ 326]    05D8:                                       errorFound:
+[ 327]    05D8: B8 01 00                              	mov ax, 1
+[ 328]        :                                       	
+[ 329]    05DB:                                       endOpenProc:
+[ 330]    05DB: 5E                                    pop si
+[ 331]    05DC: 5A                                    	pop dx
+[ 332]    05DD: 5B                                    	pop bx
+[ 333]    05DE: C3                                    	ret
+[ 334]        :                                       ENDP
+[ 335]        :                                       
+[ 336]    05DF:                                       processingFile proc             ; Процедура, бработки входного файла
+[ 337]        :                                       
+[ 338]    05DF:                                       for1:
+[ 339]    05DF: C7 06 02 00 00 00                     mov tempDX, 0               ; Обнуляем tempDX и flagTemp
+[ 340]    05E5: C7 06 04 00 00 00                     mov flagTemp, 0
+[ 341]        :                                       
+[ 342]    05EB: 8B 1E 9B 01                           mov bx, sourceID
+[ 343]    05EF: E8 2D FE                              call setPointer             ; Устанавливаем указатель на начало строки
+[ 344]        :                                       
+[ 345]    05F2: BE 9F 01                              lea si, enteredString       ; Переходим в начало введеной строки
+[ 346]    05F5: 83 C6 02                              add si, 2
+[ 347]        :                                       
+[ 348]    05F8:                                       for2:
+[ 349]    05F8: E8 C1 00                              call readSymbolFromFile     ; Считываем символ с файла
+[ 350]        :                                       
+[ 351]    05FB: 83 06 02 00 01 70 02 EB 0C FF 06 04   incrementTempPos 1
+                00 81 06 02 00 01 80 EB 00          
+[ 352]        :                                       
+[ 353]    0610: 3D 00 00                              cmp ax, 0                   ; Если ничего не считали => конец файла
+[ 354]    0613: 74 5F                                 je endFileGG
+[ 355]    0615: 80 3E 9A 01 00                        cmp [buf], 0                ; Если считали NULL => конец файла
+[ 356]    061A: 74 58                                 je endFileGG
+[ 357]        :                                       
+[ 358]    061C: 80 3E 9A 01 0A                        cmp [buf], returnSymbol     ; Проверяем не конец строки: cret, new line, \0
+[ 359]    0621: 74 1D                                 je  endString
+[ 360]    0623: 80 3E 9A 01 0D                        cmp [buf], newLineSymbol
+[ 361]    0628: 74 16                                 je  endString
+[ 362]    062A: 80 3E 9A 01 00                        cmp [buf], endl
+[ 363]    062F: 74 0F                                 je  endString
+[ 364]        :                                       
+[ 365]    0631: 33 C0                                 xor ax, ax
+[ 366]    0633: 33 DB                                 xor bx, bx
+[ 367]        :                                       
+[ 368]    0635: A0 9A 01                              mov al, buf
+[ 369]    0638: 8A 1C                                 mov bl, [si]
+[ 370]        :                                       
+[ 371]    063A: 3A C3                                 cmp al, bl                  ; Если символа равны идем в doSomething
+[ 372]    063C: 74 07                                 je doSomething
+[ 373]        :                                       
+[ 374]    063E: EB B8                                 jmp for2
+[ 375]        :                                       
+[ 376]    0640:                                       endString:
+[ 377]    0640: E8 BD FD                              call incrementStartPos       ; Запоминаем начало строки
+[ 378]    0643: EB 9A                                 jmp for1                     ; Продолжаем обработку
+[ 379]        :                                       
+[ 380]        :                                       
+[ 381]    0645:                                       doSomething:
+[ 382]    0645: 46                                    inc si
+[ 383]        :                                       
+[ 384]    0646: 33 DB                                 xor bx, bx
+[ 385]    0648: 8A 1C                                 mov bl, [si]
+[ 386]        :                                       
+[ 387]    064A: 80 FB 0D                              cmp bl, newLineSymbol        ; Если дошли до конца введенной строки, то все символа содержатся
+[ 388]    064D: 74 1F                                 je stringUdov
+[ 389]    064F: 80 FB 0A                              cmp bl, returnSymbol
+[ 390]    0652: 74 1A                                 je stringUdov
+[ 391]    0654: 80 FB 00                              cmp bl, endl
+[ 392]    0657: 74 15                                 je stringUdov
+[ 393]        :                                       
+[ 394]    0659: C7 06 02 00 00 00                     mov tempDX, 0
+[ 395]    065F: C7 06 04 00 00 00                     mov flagTemp, 0
+[ 396]        :                                       
+[ 397]    0665: 8B 1E 9B 01                           mov bx, sourceID
+[ 398]    0669: E8 B3 FD                              call setPointer
+[ 399]        :                                       
+[ 400]    066C: EB 8A                                 jmp for2
+[ 401]        :                                       
+[ 402]    066E:                                       stringUdov:
+[ 403]    066E: E8 04 00                              call writeStr                ; Записываем в output.txt
+[ 404]    0671: E9 6B FF                              jmp for1
+[ 405]        :                                       
+[ 406]    0674:                                       endFileGG:
+[ 407]        :                                       
+[ 408]    0674: C3                                    ret
+[ 409]        :                                       endp
+[ 410]        :                                       
+[ 411]    0675:                                       writeStr proc
+[ 412]    0675: 8B 1E 9B 01                           mov bx, sourceID
+[ 413]    0679: E8 A3 FD                              call setPointer
+[ 414]        :                                       
+[ 415]    067C: 8B 1E 9D 01                           mov bx, destinationID
+[ 416]        :                                       
+[ 417]    0680: C7 06 02 00 01 00                     mov tempDX, 1
+[ 418]    0686: C7 06 04 00 00 00                     mov flagTemp, 0
+[ 419]        :                                       
+[ 420]    068C:                                       while1:
+[ 421]    068C: E8 2D 00                              call readSymbolFromFile
+[ 422]    068F: E8 6E FD                              call incrementStartPos
+[ 423]        :                                       
+[ 424]    0692: 3D 00 00                              cmp ax, 0
+[ 425]    0695: 74 24                                 je endAll
+[ 426]        :                                       
+[ 427]    0697: 80 3E 9A 01 0A                        cmp [buf], returnSymbol
+[ 428]    069C: 74 13                                 je  endWrite
+[ 429]    069E: 80 3E 9A 01 00                        cmp [buf], endl
+[ 430]    06A3: 74 16                                 je  endAll
+[ 431]        :                                       
+[ 432]    06A5: B4 40                                 mov ah, 40h
+[ 433]    06A7: B9 01 00                              mov cx, 1
+[ 434]    06AA: BA 9A 01                              lea dx, buf
+[ 435]    06AD: CD 21                                 int 21h
+[ 436]        :                                       
+[ 437]    06AF: EB DB                                 jmp while1
+[ 438]        :                                       
+[ 439]    06B1:                                       endWrite:
+[ 440]    06B1: B4 40                                 mov ah, 40h
+[ 441]    06B3: B9 01 00                              mov cx, 1
+[ 442]    06B6: BA 9A 01                              lea dx, buf
+[ 443]    06B9: CD 21                                 int 21h
+[ 444]        :                                       
+[ 445]    06BB:                                       endAll:
+[ 446]        :                                       
+[ 447]    06BB: C3                                    ret
+[ 448]        :                                       endp
+[ 449]        :                                       
+[ 450]    06BC:                                       readSymbolFromFile proc
+[ 451]    06BC: 53                                    push bx
+[ 452]    06BD: 52                                    push dx
+[ 453]        :                                       
+[ 454]    06BE: B4 3F                                 mov ah, 3Fh                     ; Загружаем в ah код 3Fh - код ф-ции чтения из файла
+[ 455]    06C0: 8B 1E 9B 01                           	mov bx, sourceID                ; В bx загружаем ID файла, из которого собираемся считывать
+[ 456]    06C4: B9 01 00                              	mov cx, 1                       ; В cx загружаем количество считываемых символов
+[ 457]    06C7: BA 9A 01                              	lea dx, buf                     ; В dx загружаем смещения буффера, в который будет считывать данные из файла
+[ 458]    06CA: CD 21                                 	int 21h                         ; Вызываем прерывание для выполнения ф-ции
+[ 459]        :                                       	
+[ 460]    06CC: 73 1A                                 	jnb successfullyRead            ; Если ошибок во время счтения не произошло - прыгаем в goodRead
+[ 461]        :                                       	
+[ 462]    06CE: 50 52 B4 09 BA D8 02 CD 21 B2 0A B4   	println errorReadSourceText     ; Иначе выводим сообщение об ошибке чтения из файла
+                02 CD 21 B2 0D B4 02 CD 21 5A 58    
+[ 463]    06E5: B8 00 00                              	mov ax, 0
+[ 464]        :                                       	
+[ 465]    06E8:                                       successfullyRead:
+[ 466]        :                                       
+[ 467]    06E8: 5A                                    	pop dx
+[ 468]    06E9: 5B                                    	pop bx
+[ 469]        :                                       	
+[ 470]    06EA: C3                                    	ret    	
+[ 471]        :                                       endp
+[ 472]        :                                       
+[ 473]        :                                       end main
+[ 474]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: EB      -   bytes on last page (l.byte)
+0003: 00      -   bytes on last page (h.byte)
+0004: 05      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 00      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 01      -   SP - stack pointer (h.byte)
+0012: 2A      -   check sum (l.byte)
+0013: B7      -   check sum (h.byte)
+0014: 60      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 40      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 61      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 40      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================

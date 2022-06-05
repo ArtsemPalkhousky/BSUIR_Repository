@@ -1,0 +1,399 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+2lab.exe -- emu8086 assembler version: 4.05  
+ 
+[ 08.06.2021  --  16:41:02 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       sseg segment stack
+[   2]    0000: 00 00 00 00 00 00 00 00 00 00 00 00   db 512 DUP (?)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00             
+[   3]        :                                       sseg ends
+[   4]        :                                       
+[   5]        :                                       data segment
+[   6]    0200: 45 6E 74 65 72 20 73 74 72 69 6E 67   intro db "Enter string...", 0Dh,0Ah,"$"
+                2E 2E 2E 0D 0A 24                   
+[   7]    0212: 0D 0A 45 6E 74 65 72 20 66 69 72 73   first_substr db 0Dh,0Ah, "Enter first substr: ",0Dh,0Ah,"$"
+                74 20 73 75 62 73 74 72 3A 20 0D 0A 
+                24                                  
+[   8]    022B: 0D 0A 45 6E 74 65 72 20 73 65 63 6F   second_substr db 0Dh,0Ah, "Enter second substr: ",0Dh,0Ah,"$"
+                6E 64 20 73 75 62 73 74 72 3A 20 0D 
+                0A 24                               
+[   9]    0245: 0D 0A 41 6E 73 77 65 72 3A 20 20 0D   answer db 0Dh,0Ah, "Answer:  ",0Dh,0Ah,"$"
+                0A 24                               
+[  10]    0253: 4C 65 6E 67 74 68 20 65 72 72 6F 72   lengthError db "Length error",0Dh,0Ah,"$"
+                0D 0A 24                            
+[  11]    0262: 24 24 24 24 24 24 24 24 24 24 24 24   string db 202 dup("$")
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24       
+[  12]    032C: 24 24 24 24 24 24 24 24 24 24 24 24   find_str db 202 dup("$")
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24       
+[  13]    03F6: 24 24 24 24 24 24 24 24 24 24 24 24   change_str db 202 dup("$")
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24       
+[  14]    04C0: C8                                    stringLength db 200
+[  15]        :                                       data ends
+[  16]        :                                       
+[  17]        :                                       code segment
+[  18]        :                                       
+[  19]    04D0:                                       start:
+[  20]        :                                       
+[  21]    04D0: B8 20 00                              mov ax,     data    ;set data segment for string
+[  22]    04D3: 8E D8                                 mov ds, ax
+[  23]    04D5: 8E C0                                 mov es,ax
+[  24]        :                                       
+[  25]    04D7: BA 00 00                              lea dx, intro
+[  26]    04DA: E8 3B 01                              call output
+[  27]        :                                       
+[  28]    04DD: A0 C0 02                              mov al, stringLength    ;load max string length in al
+[  29]    04E0: A2 62 00                              mov [string], al        ;load max string length
+[  30]    04E3: C6 06 63 00 00                        mov [string + 1], 0     ;null fact length
+[  31]    04E8: BA 62 00                              lea dx, string
+[  32]    04EB: E8 25 01                              call input
+[  33]        :                                       
+[  34]    04EE: BA 12 00                              lea dx, first_substr
+[  35]    04F1: E8 24 01                              call output
+[  36]        :                                       
+[  37]    04F4: C6 06 2C 01 C8                        mov [find_str], 200     ;load max string length in first byte
+[  38]    04F9: C6 06 2D 01 00                        mov [find_str + 1], 0   ;load max string length
+[  39]    04FE: BA 2C 01                              lea dx, find_str        ;load string to dx
+[  40]    0501: E8 0F 01                              call input
+[  41]        :                                       
+[  42]    0504: BA 2B 00                              lea dx, second_substr
+[  43]    0507: E8 0E 01                              call output
+[  44]        :                                       
+[  45]    050A: C6 06 F6 01 C8                        mov [change_str], 200    ;load max string length
+[  46]    050F: C6 06 F7 01 00                        mov [change_str + 1], 0  ;load max string length
+[  47]    0514: BA F6 01                              lea dx, change_str       ;load string to dx
+[  48]    0517: E8 F9 00                              call input
+[  49]        :                                       
+[  50]    051A: 33 DB                                 xor bx,bx
+[  51]    051C: 33 C9                                 xor cx,cx
+[  52]        :                                       
+[  53]    051E:                                       go:
+[  54]    051E: 8A CB                                 mov cl,bl               ;start search after last replacement
+[  55]    0520: 8A EB                                 mov ch,bl               ;we will start put change_str start with ch, because ch pointing after replaced substr(see pasteStr)
+[  56]        :                                       
+[  57]    0522: BE 62 00                              lea si,string           ;set string in si
+[  58]    0525: 83 C6 02                              add si,2                ;moving si ptr to first string element
+[  59]    0528: 03 F3                                 add si,bx               ;moving si ptr to fisrt string element
+[  60]        :                                       
+[  61]    052A: BF 62 00                              lea di,string           ;set string in di
+[  62]    052D: 83 C7 02                              add di,2                ;moving si ptr to first string element
+[  63]    0530: 03 FB                                 add di,bx               ;moving si ptr to fisrt string element
+[  64]        :                                       
+[  65]    0532: BB 2C 01                              lea bx,find_str         ;set find_str in bx
+[  66]    0535: 83 C3 02                              add bx,2                ;moving bx ptr to fisrt string character
+[  67]        :                                       
+[  68]    0538: A0 63 00                              mov al, [string + 1]    ;saving fact string length into al
+[  69]    053B: A2 C0 02                              mov stringLength, al    ;saving fact length
+[  70]        :                                       
+[  71]    053E: 8A 36 2D 01                           mov dh,[find_str+1]     ;saving fact length of find_str
+[  72]    0542: 8A D1                                 mov dl, cl
+[  73]        :                                       
+[  74]    0544: 33 C0                                 xor ax,ax
+[  75]        :                                       
+[  76]    0546: FC                                    cld
+[  77]        :                                       
+[  78]    0547:                                       find_equal:
+[  79]    0547: 38 0E C0 02                           cmp stringLength, cl    ;check abroad
+[  80]    054B: 77 03 E9 CD 00                        jbe finish              ;if went to the abroad not found finish
+[  81]    0550: AC                                    lodsb                   ;get sym from si in al and inc si
+[  82]    0551: 38 07                                 cmp byte ptr[bx], al    ;compare symbols
+[  83]    0553: 74 02                                 je l_equal              ;if equal go l_equal
+[  84]    0555: EB 0B                                 jmp not_equal           ;else not_equal
+[  85]        :                                       
+[  86]    0557:                                       l_equal:
+[  87]    0557: FE C1                                 inc cl          ;inc string iterator
+[  88]    0559: 43                                    inc bx          ;go to the next sym in find_str
+[  89]    055A: FE C4                                 inc ah          ;num of equal sym
+[  90]        :                                       
+[  91]    055C: 3A F4                                 cmp dh,ah       ;if we find substring
+[  92]    055E: 74 15                                 je add_str      ;go change substr
+[  93]    0560: EB E5                                 jmp find_equal  ;if not found all substr continue finding
+[  94]        :                                       
+[  95]    0562:                                       not_equal:
+[  96]    0562: 47                                    inc di
+[  97]    0563: 8B F7                                 mov si,di
+[  98]    0565: FE C2                                 inc dl
+[  99]    0567: 8A CA                                 mov cl,dl
+[ 100]        :                                       
+[ 101]    0569: 8A E9                                 mov ch,cl           ;remember start of changable str
+[ 102]    056B: 32 E4                                 xor ah,ah           ;ah=0 num of equal sym
+[ 103]    056D: BB 2C 01                              lea bx,find_str     ;reset bx pointer
+[ 104]    0570: 83 C3 02                              add bx,2            ;point on first sym
+[ 105]    0573: EB D2                                 jmp find_equal
+[ 106]        :                                       
+[ 107]    0575:                                       add_str:
+[ 108]    0575: 50                                    push ax
+[ 109]    0576: 53                                    push bx
+[ 110]    0577: 33 C0                                 xor ax,ax
+[ 111]    0579: 33 DB                                 xor bx,bx
+[ 112]        :                                       
+[ 113]    057B: A0 C0 02                              mov al, stringLength    ;check if we trying paste substr and our string will be more than 200 symbols
+[ 114]        :                                       
+[ 115]    057E: 8A 1E 2D 01                           mov bl, [find_str+1]
+[ 116]    0582: 2B C3                                 sub ax, bx
+[ 117]    0584: 8A 1E F7 01                           mov bl, [change_str+1]
+[ 118]    0588: 03 C3                                 add ax, bx
+[ 119]        :                                       
+[ 120]    058A: 3D C8 00                              cmp ax, 200             ;if(stringLength - findStrLength + changeStr < 200)
+[ 121]    058D: 7C 11                                 jl continueWorkWithStr
+[ 122]        :                                       
+[ 123]    058F: BA 45 00                              lea dx,answer
+[ 124]    0592: E8 83 00                              call output
+[ 125]        :                                       
+[ 126]    0595: BA 53 00                              lea dx,lengthError
+[ 127]    0598: E8 7D 00                              call output
+[ 128]        :                                       
+[ 129]    059B: B8 00 4C                              mov ax,4c00h
+[ 130]    059E: CD 21                                 int 21h
+[ 131]        :                                       
+[ 132]    05A0:                                       continueWorkWithStr:
+[ 133]    05A0: 5B                                    pop bx
+[ 134]    05A1: 58                                    pop ax            ;if all good, recover AX
+[ 135]        :                                       
+[ 136]    05A2: FD                                    std               ;set flag of direction
+[ 137]        :                                       
+[ 138]    05A3: BB 62 00                              lea bx,string       ;set string
+[ 139]    05A6: A0 C0 02                              mov al,stringLength ;save string length
+[ 140]    05A9: 04 01                                 add al,1            ;add 1 because str[2]==(first string element)(first two bytes service)
+[ 141]        :                                       ;(if len 5, str[5] prelast sym, hence we need to add +1 for stay on last sym)
+[ 142]    05AB: 32 E4                                 xor ah,ah           ;null ah
+[ 143]    05AD: 03 D8                                 add bx,ax           ;move pointer on last sym in string
+[ 144]        :                                       
+[ 145]    05AF: 8B F3                                 mov si,bx           ;move stringPointer in si
+[ 146]    05B1: 8A 36 C0 02                           mov dh, stringLength;remember string length in dh
+[ 147]    05B5: 2A F1                                 sub dh,cl           ;num of elem in stack
+[ 148]    05B7: FE 0E C0 02                           dec stringLength    ;dec length, because numeration start from zero. example "qwerty" length=6, but 'y' has 5 address
+[ 149]    05BB: EB 00                                 jmp pushInStack     ;push excess sym after substr in stack
+[ 150]        :                                       
+[ 151]    05BD:                                       pushInStack:
+[ 152]        :                                       
+[ 153]    05BD: 38 0E C0 02                           cmp stringLength,cl ;while(length>=cl) cl - point on first substr sym
+[ 154]    05C1: 77 08                                 ja addItem          ;unsigned above
+[ 155]    05C3: 38 0E C0 02                           cmp stringLength,cl ;jbne - doesn't work in equal case
+[ 156]    05C7: 74 02                                 je addItem          ;if equal
+[ 157]    05C9: EB 0B                                 jmp pasteStr        ;if add all sym in stack, start to pasteStr
+[ 158]        :                                       
+[ 159]    05CB:                                       addItem:
+[ 160]        :                                       
+[ 161]    05CB: FD                                    std                 ;add in stack and movsb
+[ 162]    05CC: AC                                    lodsb               ;get sym from string and string++
+[ 163]    05CD: 32 E4                                 xor ah,ah
+[ 164]    05CF: 50                                    push ax
+[ 165]    05D0: FE 0E C0 02                           dec stringLength
+[ 166]    05D4: EB E7                                 jmp pushInStack
+[ 167]        :                                       
+[ 168]    05D6:                                       pasteStr:
+[ 169]        :                                       
+[ 170]    05D6: FC                                    cld
+[ 171]        :                                       
+[ 172]    05D7: BE F6 01                              lea si,change_str
+[ 173]    05DA: 83 C6 02                              add si,2
+[ 174]        :                                       
+[ 175]    05DD: 33 C0                                 xor ax,ax
+[ 176]    05DF: 8A C5                                 mov al,ch              ;start point where we will put syms
+[ 177]        :                                       
+[ 178]    05E1: BF 62 00                              lea di,string
+[ 179]    05E4: 83 C7 02                              add di,2
+[ 180]    05E7: 03 F8                                 add di, ax             ;move stringPointer on sym, where we will put changeSubstr
+[ 181]        :                                       
+[ 182]    05E9: 02 06 F7 01                           add al,[change_str+1]  ;num of sym before substr + num of sym change_str
+[ 183]    05ED: 33 DB                                 xor bx,bx
+[ 184]    05EF: 8A D8                                 mov bl,al              ;store index, after inserted substr
+[ 185]    05F1: 02 C6                                 add al,dh              ;and + num sym in stack
+[ 186]        :                                       
+[ 187]        :                                       
+[ 188]    05F3: A2 63 00                              mov [string+1],al      ;change fact length in str
+[ 189]        :                                       
+[ 190]    05F6: 33 C9                                 xor cx,cx
+[ 191]    05F8: 8A 0E F7 01                           mov cl,[change_str+1]
+[ 192]        :                                       
+[ 193]    05FC: F3 A4                                 rep movsb              ;move sym from si to di
+[ 194]        :                                       
+[ 195]    05FE: 8A CE                                 mov cl,dh              ;return num of elem in stack
+[ 196]        :                                       
+[ 197]    0600:                                       getFromStack:
+[ 198]        :                                       
+[ 199]    0600: 80 F9 00                              cmp cl,0               ;if no string elements in stack, case: replace lasts symbols in string(we push in stack nothing)
+[ 200]    0603: 75 04                                 jne continueGetFromStack
+[ 201]    0605: 8B F7                                 mov si,di              ;because in finish we mov di,si
+[ 202]        :                                       ;(because di point to after replaced substr and si point higher or lower, previous case)
+[ 203]    0607: EB 14                                 jmp finish
+[ 204]        :                                       
+[ 205]    0609:                                       continueGetFromStack:
+[ 206]        :                                       
+[ 207]    0609: 33 C0                                 xor ax,ax
+[ 208]    060B: 58                                    pop ax
+[ 209]        :                                       
+[ 210]    060C: FC                                    cld
+[ 211]    060D: AA                                    stosb                  ;put sym from al to di and di++
+[ 212]    060E: E2 F0                                 loop getFromStack
+[ 213]        :                                       
+[ 214]    0610: E9 0B FF                              jmp go
+[ 215]        :                                       
+[ 216]    0613:                                       input proc near
+[ 217]    0613: B4 0A                                 mov ah,0Ah
+[ 218]    0615: CD 21                                 int 21h
+[ 219]    0617: C3                                    ret
+[ 220]        :                                       input endp
+[ 221]        :                                       
+[ 222]    0618:                                       output proc near
+[ 223]    0618: B4 09                                 mov ah,9
+[ 224]    061A: CD 21                                 int 21h
+[ 225]    061C: C3                                    ret
+[ 226]        :                                       output endp
+[ 227]        :                                       
+[ 228]    061D:                                       finish:
+[ 229]        :                                       
+[ 230]    061D: 33 C0                                 xor ax,ax
+[ 231]    061F: B8 24 00                              mov ax,'$'
+[ 232]    0622: 8B FE                                 mov di,si             ;si point to after last symbol
+[ 233]    0624: AA                                    stosb                 ;put terminator in the end of string
+[ 234]        :                                       
+[ 235]    0625: BA 45 00                              lea dx,answer
+[ 236]    0628: E8 ED FF                              call output
+[ 237]        :                                       
+[ 238]    062B: BA 62 00                              lea dx,string
+[ 239]    062E: 83 C2 02                              add dx,2
+[ 240]    0631: E8 E4 FF                              call output
+[ 241]        :                                       
+[ 242]    0634: B8 00 4C                              mov ax,4c00h
+[ 243]    0637: CD 21                                 int 21h
+[ 244]        :                                       end start
+[ 245]        :                                       
+[ 246]        :                                       code ends
+[ 247]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: 39      -   bytes on last page (l.byte)
+0003: 00      -   bytes on last page (h.byte)
+0004: 05      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 00      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 02      -   SP - stack pointer (h.byte)
+0012: 2B      -   check sum (l.byte)
+0013: A9      -   check sum (h.byte)
+0014: 00      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 4D      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 01      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 4D      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================

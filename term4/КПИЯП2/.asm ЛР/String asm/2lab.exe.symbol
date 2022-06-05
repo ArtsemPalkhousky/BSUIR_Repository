@@ -1,0 +1,35 @@
+< THE SYMBOL TABLE >  2lab.exe  --  emu8086 assembler version: 4.05 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+SSEG                     	00000     	-5        	SEGMENT   	(ITSELF)  
+DATA                     	00020     	-5        	SEGMENT   	(ITSELF)  
+INTRO                    	00000     	1         	VAR       	data      
+FIRST_SUBSTR             	00012     	1         	VAR       	data      
+SECOND_SUBSTR            	0002B     	1         	VAR       	data      
+ANSWER                   	00045     	1         	VAR       	data      
+LENGTHERROR              	00053     	1         	VAR       	data      
+STRING                   	00062     	1         	VAR       	data      
+FIND_STR                 	0012C     	1         	VAR       	data      
+CHANGE_STR               	001F6     	1         	VAR       	data      
+STRINGLENGTH             	002C0     	1         	VAR       	data      
+CODE                     	0004D     	-5        	SEGMENT   	(ITSELF)  
+START                    	00000     	-1        	LABEL     	code      
+GO                       	0004E     	-1        	LABEL     	code      
+FIND_EQUAL               	00077     	-1        	LABEL     	code      
+L_EQUAL                  	00087     	-1        	LABEL     	code      
+NOT_EQUAL                	00092     	-1        	LABEL     	code      
+ADD_STR                  	000A5     	-1        	LABEL     	code      
+CONTINUEWORKWITHSTR      	000D0     	-1        	LABEL     	code      
+PUSHINSTACK              	000ED     	-1        	LABEL     	code      
+ADDITEM                  	000FB     	-1        	LABEL     	code      
+PASTESTR                 	00106     	-1        	LABEL     	code      
+GETFROMSTACK             	00130     	-1        	LABEL     	code      
+CONTINUEGETFROMSTACK     	00139     	-1        	LABEL     	code      
+INPUT                    	00143     	-1        	NEAR      	code      
+OUTPUT                   	00148     	-1        	NEAR      	code      
+FINISH                   	0014D     	-1        	LABEL     	code      
+===================================================================================================
+[ 08.06.2021  --  16:41:02 ] 
+< END >
+ 

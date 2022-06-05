@@ -1,0 +1,437 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+lab3.exe -- emu8086 assembler version: 4.05  
+ 
+[ 17.06.2021  --  17:52:16 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       .model small
+[   2]        :                                       .stack 100h
+[   3]        :                                       .data
+[   4]    0100: 00 00                                 column_counter dw ?
+[   5]    0102: 00 00                                 row_counter dw ?
+[   6]    0104: 03 00                                 rows_count dw 3
+[   7]    0106: 02 00                                 columns_count dw 2
+[   8]    0108: 06 00                                 matrix_elements_count dw 6
+[   9]        :                                       
+[  10]        :                                       string_of_numbers_length equ 10
+[  11]    010A: 24 00 24 00 24 00 24 00 24 00         mul_array             dw 5 dup ('$')
+[  12]    0114: 24 00 24 00 24 00 24 00 24 00         result_array           dw 5 dup ('$')
+[  13]    011E: 24 00 24 00 24 00 24 00 24 00 24 00   matrix                dw 8 * 8 dup('$')
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00 24 00 24 00 
+                24 00 24 00 24 00 24 00             
+[  14]    019E: 24 24 24 24 24 24 24 24 24 24         string_of_numbers     db string_of_numbers_length dup('$')
+[  15]        :                                       
+[  16]    01A8: 49 6E 70 75 74 20 6D 61 74 72 69 78   input_matrix_msg db "Input matrix numbers $"
+                20 6E 75 6D 62 65 72 73 20 24       
+[  17]    01BE: 49 6E 70 75 74 20 65 72 72 6F 72 21   input_invalid_msg db "Input error! $"
+                20 24                               
+[  18]    01CC: 54 72 79 20 61 67 61 69 6E 3A 20 24   try_again_msg db "Try again: $"
+                                                    
+[  19]    01D8: 49 6E 70 75 74 3A 20 24               input_element_msg db "Input: $"
+[  20]    01E0: 4F 56 45 52 46 4C 4F 57 20 24         overflow_msg db "OVERFLOW $"
+[  21]    01EA: 53 74 72 69 6E 67 20 69 6E 64 65 78   result_msg db "String indexes with biggest mul: $"
+                65 73 20 77 69 74 68 20 62 69 67 67 
+                65 73 74 20 6D 75 6C 3A 20 24       
+[  22]        :                                       
+[  23]    020C: 0D 0A 24                              new_line db 13, 10,'$'
+[  24]    020F: 20 24                                 space db " $"
+[  25]    0211: 0A 00                                 ten dw 000Ah
+[  26]    0213: 01 00                                 one dw 1
+[  27]        :                                       .code
+[  28]        :                                       
+[  29]    0220:                                       start:
+[  30]    0220: B8 10 00                              mov ax, @data
+[  31]    0223: 8E D8                                 mov ds, ax
+[  32]    0225: 8E C0                                 mov es, ax
+[  33]    0227: 33 C0                                 xor ax, ax
+[  34]        :                                       
+[  35]    0229: C6 06 9E 00 0A                        mov [string_of_numbers], string_of_numbers_length
+[  36]    022E: E8 D7 00                              call input_matrix
+[  37]    0231: E8 ED 00                              call output_matrix
+[  38]    0234: E8 3D 01                              call calculate_mul
+[  39]    0237: E8 8B 01                              call output_mul
+[  40]    023A: E8 D3 01                              call calculate_mul_maximum
+[  41]    023D: E8 1F 02                              call output_mul_maximum
+[  42]    0240:                                       exit:
+[  43]    0240: B8 00 4C                              mov ax, 4c00h
+[  44]    0243: CD 21                                 int 21h
+[  45]        :                                       ends
+[  46]        :                                       
+[  47]    0245:                                       input_matrix_elements proc
+[  48]    0245: E8 56 02                              call output_new_line
+[  49]    0248: BA D8 00                              lea dx, input_element_msg
+[  50]    024B: E8 57 02                              call output_string
+[  51]    024E:                                       input_element:
+[  52]    024E: BA 9E 00                              lea dx, string_of_numbers
+[  53]    0251: E8 56 02                              call input_string
+[  54]    0254: BE A0 00                              lea si, string_of_numbers[2]
+[  55]    0257: E8 21 00                              call string_to_int
+[  56]    025A: 72 06                                 jc input_error
+[  57]    025C: E8 16 00                              call element_load
+[  58]    025F: E2 E4                                 loop input_matrix_elements
+[  59]    0261: C3                                    ret
+[  60]    0262:                                       input_error:
+[  61]    0262: E8 39 02                              call output_new_line
+[  62]    0265: BA BE 00                              lea dx, input_invalid_msg
+[  63]    0268: E8 3A 02                              call output_string
+[  64]    026B: 71 00                                 jno try_again
+[  65]    026D:                                       try_again:
+[  66]    026D: BA CC 00                              lea dx, try_again_msg
+[  67]    0270: E8 32 02                              call output_string
+[  68]    0273: EB D9                                 jmp input_element
+[  69]    0275:                                       element_load:
+[  70]    0275: 89 05                                 mov [di], ax
+[  71]    0277: 83 C7 02                              add di, 2 ; 2 - size of number
+[  72]    027A: C3                                    ret
+[  73]        :                                       input_matrix_elements endp
+[  74]        :                                       
+[  75]    027B:                                       string_to_int proc
+[  76]    027B: 33 D2                                 xor dx,dx
+[  77]    027D: 33 DB                                 xor bx,bx
+[  78]    027F: 33 C0                                 xor ax,ax ; result
+[  79]    0281: 32 ED                                 xor ch,ch
+[  80]    0283: EB 32                                 jmp number_sign_check
+[  81]    0285:                                       string_to_int_loop:
+[  82]    0285: 8A 1C                                 mov bl, [si] ; one number is 1 byte
+[  83]    0287: EB 1D                                 jmp is_number
+[  84]    0289:                                       string_valid:
+[  85]    0289: 80 EB 30                              sub bl, '0'
+[  86]    028C: F7 2E 11 01                           imul ten ; ax * 10
+[  87]    0290: 70 3E                                 jo string_invalid ; > 16 bit
+[  88]    0292: 78 3C                                 js string_invalid ; > 15 bit
+[  89]    0294: 80 FD 01                              cmp ch, 1
+[  90]    0297: 74 07                                 je add_negative
+[  91]    0299: 03 C3                                 add ax, bx
+[  92]    029B: 78 33                                 js string_invalid
+[  93]    029D:                                       invalid_check:
+[  94]    029D: 46                                    inc si ; si - string address
+[  95]    029E: EB E5                                 jmp string_to_int_loop
+[  96]    02A0:                                       add_negative:
+[  97]        :                                       ;;;;;;;;;;;;
+[  98]    02A0: 2B C3                                 sub ax, bx
+[  99]    02A2: 79 2C                                 jns string_invalid
+[ 100]    02A4: EB F7                                 jmp invalid_check
+[ 101]    02A6:                                       is_number:
+[ 102]    02A6: 80 FB 0D                              cmp bl, 0Dh
+[ 103]    02A9: 74 29                                 je string_to_int_finish
+[ 104]    02AB: 80 FB 30                              cmp bl, '0'
+[ 105]    02AE: 7C 20                                 jl string_invalid
+[ 106]    02B0: 80 FB 39                              cmp bl, '9'
+[ 107]    02B3: 7F 1B                                 jg string_invalid
+[ 108]    02B5: EB D2                                 jmp string_valid
+[ 109]    02B7:                                       number_sign_check:
+[ 110]    02B7: 80 3C 2D                              cmp [si], '-'
+[ 111]    02BA: 74 08                                 je number_negative
+[ 112]    02BC: 80 3C 2B                              cmp [si], '+'
+[ 113]    02BF: 75 08                                 jne string_empty
+[ 114]    02C1: 46                                    inc si
+[ 115]    02C2: EB 05                                 jmp string_empty
+[ 116]    02C4:                                       number_negative:
+[ 117]    02C4: B5 01                                 mov ch, 1
+[ 118]    02C6: 46                                    inc si
+[ 119]    02C7: EB 00                                 jmp string_empty
+[ 120]    02C9:                                       string_empty:
+[ 121]    02C9: 80 3C 0D                              cmp [si], 0Dh
+[ 122]    02CC: 74 02                                 je string_invalid
+[ 123]    02CE: EB B5                                 jmp string_to_int_loop
+[ 124]    02D0:                                       string_invalid:
+[ 125]    02D0: 32 ED                                 xor ch, ch
+[ 126]    02D2: F9                                    stc   ;CF = 1
+[ 127]    02D3: C3                                    ret
+[ 128]    02D4:                                       string_to_int_finish:
+[ 129]    02D4: F8                                    clc  ; clear carry flag, cf = 0
+[ 130]    02D5: 32 ED                                 xor ch, ch
+[ 131]    02D7: C3                                    ret
+[ 132]        :                                       string_to_int endp
+[ 133]        :                                       
+[ 134]    02D8:                                       int_to_string proc
+[ 135]    02D8: 6A 00                                 push 0
+[ 136]    02DA: 6A 24                                 push 0024h  ;$
+[ 137]    02DC: 05 00 00                              add ax, 0000h
+[ 138]    02DF: 78 1E                                 js number_is_negative
+[ 139]    02E1:                                       int_to_string_loop:
+[ 140]    02E1: 33 D2                                 xor dx,dx
+[ 141]    02E3: F7 36 11 01                           div ten
+[ 142]    02E7: 83 C2 30                              add dx, '0'
+[ 143]    02EA: 52                                    push dx
+[ 144]    02EB: 3D 00 00                              cmp ax, 0h
+[ 145]    02EE: 75 F1                                 jne int_to_string_loop
+[ 146]    02F0:                                       move_number_to_buffer:
+[ 147]    02F0: 58                                    pop ax
+[ 148]    02F1: 3C 24                                 cmp al, '$'
+[ 149]    02F3: 74 05                                 je int_to_string_finish
+[ 150]    02F5: 88 05                                 mov [di], al
+[ 151]    02F7: 47                                    inc di
+[ 152]    02F8: EB F6                                 jmp move_number_to_buffer
+[ 153]    02FA:                                       int_to_string_finish:
+[ 154]    02FA: 58                                    pop ax
+[ 155]    02FB: C6 05 24                              mov [di], '$'
+[ 156]    02FE: C3                                    ret
+[ 157]    02FF:                                       number_is_negative:
+[ 158]    02FF: C6 05 2D                              mov [di], '-'
+[ 159]    0302: 47                                    inc di
+[ 160]    0303: F7 D0                                 not ax
+[ 161]    0305: 40                                    inc ax
+[ 162]    0306: EB D9                                 jmp int_to_string_loop
+[ 163]        :                                       int_to_string endp
+[ 164]        :                                       
+[ 165]    0308:                                       input_matrix proc
+[ 166]    0308: E8 93 01                              call output_new_line
+[ 167]    030B: BA A8 00                              lea dx, input_matrix_msg
+[ 168]    030E: E8 94 01                              call output_string
+[ 169]    0311: 33 C9                                 xor cx, cx
+[ 170]    0313: 8B 0E 08 00                           mov cx, matrix_elements_count
+[ 171]    0317: BF 1E 00                              lea di, matrix
+[ 172]    031A: E8 28 FF                              call input_matrix_elements
+[ 173]    031D: E8 7E 01                              call output_new_line
+[ 174]    0320: C3                                    ret
+[ 175]        :                                       input_matrix endp
+[ 176]        :                                       
+[ 177]    0321:                                       output_matrix proc
+[ 178]    0321: C7 06 00 00 00 00                     mov column_counter, 0000h
+[ 179]    0327: C7 06 02 00 00 00                     mov row_counter, 0000h
+[ 180]    032D: BE 1E 00                              lea si, matrix
+[ 181]    0330: EB 1A                                 jmp loop_external
+[ 182]    0332:                                       loop_internal:
+[ 183]    0332: BA 0C 01                              lea dx, new_line
+[ 184]    0335: E8 6D 01                              call output_string
+[ 185]    0338: C7 06 02 00 00 00                     mov row_counter, 0000h
+[ 186]    033E: FF 06 00 00                           inc column_counter
+[ 187]    0342: 8B 0E 00 00                           mov cx, column_counter
+[ 188]    0346: 3B 0E 06 00                           cmp cx, columns_count
+[ 189]    034A: 74 27                                 je loop_return
+[ 190]    034C:                                       loop_external:
+[ 191]    034C: 8B 04                                 mov ax, [si]
+[ 192]    034E: 83 C6 02                              add si, 2 ; 2 - size of number
+[ 193]        :                                       
+[ 194]    0351: BF A0 00                              lea di, string_of_numbers[2]
+[ 195]    0354: E8 81 FF                              call int_to_string
+[ 196]    0357: BA A0 00                              lea dx, string_of_numbers[2]
+[ 197]    035A: E8 48 01                              call output_string
+[ 198]    035D: BA 0F 01                              lea dx, space
+[ 199]    0360: E8 42 01                              call output_string
+[ 200]    0363: FF 06 02 00                           inc row_counter
+[ 201]    0367: 8B 0E 02 00                           mov cx, row_counter
+[ 202]    036B: 3B 0E 04 00                           cmp cx, rows_count
+[ 203]    036F: 75 DB                                 jne loop_external
+[ 204]    0371: EB BF                                 jmp loop_internal
+[ 205]    0373:                                       loop_return:
+[ 206]    0373: C3                                    ret
+[ 207]        :                                       output_matrix endp
+[ 208]        :                                       
+[ 209]    0374:                                       calculate_mul proc
+[ 210]    0374: BF 0A 00                              lea di, mul_array
+[ 211]    0377: BE 1E 00                              lea si, matrix
+[ 212]    037A: BB 14 00                              lea bx, result_array
+[ 213]    037D: C7 06 00 00 00 00                     mov column_counter, 0000h
+[ 214]    0383: C7 06 02 00 00 00                     mov row_counter, 0000h
+[ 215]    0389: 33 C0                                 xor ax, ax
+[ 216]    038B: 40                                    inc ax
+[ 217]    038C: EB 1F                                 jmp mul_loop_external
+[ 218]    038E:                                       mul_loop_internal:
+[ 219]    038E: 89 05                                 mov [di], ax
+[ 220]    0390: 83 C7 02                              add di, 2 ; 2 - size of number
+[ 221]    0393: 83 C3 02                              add bx, 2 ; 2 - size of number
+[ 222]    0396: 33 C0                                 xor ax, ax
+[ 223]    0398: 40                                    inc ax
+[ 224]    0399: C7 06 02 00 00 00                     mov row_counter, 0000h
+[ 225]    039F: FF 06 00 00                           inc column_counter
+[ 226]    03A3: 8B 0E 00 00                           mov cx, column_counter
+[ 227]    03A7: 3B 0E 06 00                           cmp cx, columns_count
+[ 228]    03AB: 74 17                                 je mul_loop_internal_return
+[ 229]    03AD:                                       mul_loop_external:
+[ 230]    03AD: F7 2C                                 imul one, [si]
+[ 231]    03AF: 70 59                                 jo mul_overflow
+[ 232]    03B1:                                       mul_after_overflow:
+[ 233]    03B1: 83 C6 02                              add si, 2 ; 2 - size of number
+[ 234]    03B4: FF 06 02 00                           inc row_counter
+[ 235]    03B8: 8B 0E 02 00                           mov cx, row_counter
+[ 236]    03BC: 3B 0E 04 00                           cmp cx , rows_count
+[ 237]    03C0: 75 EB                                 jne mul_loop_external
+[ 238]    03C2: EB CA                                 jmp mul_loop_internal
+[ 239]    03C4:                                       mul_loop_internal_return:
+[ 240]    03C4: C3                                    ret
+[ 241]        :                                       calculate_mul endp
+[ 242]        :                                       
+[ 243]    03C5:                                       output_mul proc
+[ 244]    03C5: E8 D6 00                              call output_new_line
+[ 245]    03C8: BE 0A 00                              lea si, mul_array
+[ 246]    03CB: BB 14 00                              lea bx, result_array
+[ 247]    03CE: C7 06 00 00 00 00                     mov column_counter, 0000h
+[ 248]    03D4:                                       output_mul_external_loop:
+[ 249]    03D4: 80 3F 00                              cmp [bx], 0
+[ 250]    03D7: 74 26                                 je output_overflow
+[ 251]    03D9: 8B 04                                 mov ax, [si]
+[ 252]        :                                       
+[ 253]    03DB: BF A0 00                              lea di, string_of_numbers[2]
+[ 254]    03DE: E8 F7 FE                              call int_to_string
+[ 255]        :                                       
+[ 256]    03E1: BA A0 00                              lea dx, string_of_numbers[2]
+[ 257]    03E4: E8 BE 00                              call output_string
+[ 258]    03E7: E8 B4 00                              call output_new_line
+[ 259]    03EA:                                       output_mul_internal_loop:
+[ 260]    03EA: FF 06 00 00                           inc column_counter
+[ 261]    03EE: 83 C6 02                              add si, 2 ; 2 - size of number
+[ 262]    03F1: 83 C3 02                              add bx, 2 ; 2 - size of number
+[ 263]    03F4: 8B 0E 00 00                           mov cx, column_counter
+[ 264]    03F8: 3B 0E 06 00                           cmp cx, columns_count
+[ 265]    03FC: 75 D6                                 jne output_mul_external_loop
+[ 266]    03FE: C3                                    ret
+[ 267]        :                                       output_mul endp
+[ 268]        :                                       
+[ 269]    03FF:                                       output_overflow:
+[ 270]    03FF: BA E0 00                              lea dx, overflow_msg
+[ 271]    0402: E8 A0 00                              call output_string
+[ 272]    0405: E8 96 00                              call output_new_line
+[ 273]    0408: EB E0                                 jmp output_mul_internal_loop
+[ 274]        :                                       
+[ 275]    040A:                                       mul_overflow:
+[ 276]    040A: C7 07 00 00                           mov word ptr [bx], 0
+[ 277]    040E: EB A1                                 jmp mul_after_overflow
+[ 278]        :                                       
+[ 279]    0410:                                       calculate_mul_maximum proc
+[ 280]    0410: BE 14 00                              lea si, result_array
+[ 281]    0413: BF 0A 00                              lea di, mul_array
+[ 282]    0416: C7 06 00 00 01 00                     mov column_counter, 0001h
+[ 283]    041C: EB 28                                 jmp check_mul_overflow
+[ 284]        :                                       
+[ 285]    041E:                                       calculate_mul_maximum_loop:
+[ 286]    041E: 8B 0E 00 00                           mov cx, column_counter
+[ 287]    0422: 3B 0E 06 00                           cmp cx, columns_count
+[ 288]    0426: 74 1D                                 je calculate_mul_maximum_end
+[ 289]    0428: FF 06 00 00                           inc column_counter
+[ 290]    042C: 83 C6 02                              add si, 2 ; 2 - size of number
+[ 291]    042F: 83 C7 02                              add di, 2 ; 2 - size of number
+[ 292]    0432: 80 3C 00                              cmp [si], 0
+[ 293]    0435: 74 E7                                 je calculate_mul_maximum_loop
+[ 294]        :                                       
+[ 295]    0437: 3B 1D                                 cmp bx, [di]
+[ 296]    0439: 7C 20                                 jl temporary_mul_greater
+[ 297]    043B:                                       greater_fount:
+[ 298]    043B: 8B 0E 00 00                           mov cx, column_counter
+[ 299]    043F: 3B 0E 06 00                           cmp cx, columns_count
+[ 300]    0443: 7E D9                                 jle calculate_mul_maximum_loop
+[ 301]    0445:                                       calculate_mul_maximum_end:
+[ 302]    0445: C3                                    ret
+[ 303]        :                                       calculate_mul_maximum endp
+[ 304]        :                                       
+[ 305]    0446:                                       check_mul_overflow:
+[ 306]    0446: 80 3C 00                              cmp [si], 0
+[ 307]    0449: 74 04                                 je check_mul_overflow_equals
+[ 308]    044B: 8B 1D                                 mov bx, [di]
+[ 309]    044D: EB CF                                 jmp calculate_mul_maximum_loop
+[ 310]    044F:                                       check_mul_overflow_equals:
+[ 311]    044F: FF 06 00 00                           inc column_counter
+[ 312]    0453: 83 C6 02                              add si, 2 ; 2 - size of number
+[ 313]    0456: 83 C7 02                              add di, 2 ; 2 - size of number
+[ 314]    0459: EB EB                                 jmp check_mul_overflow
+[ 315]    045B:                                       temporary_mul_greater:
+[ 316]    045B: 8B 1D                                 mov bx, [di]
+[ 317]    045D: EB DC                                 jmp greater_fount
+[ 318]        :                                       
+[ 319]    045F:                                       output_mul_maximum proc
+[ 320]    045F: E8 3C 00                              call output_new_line
+[ 321]    0462: BE 0A 00                              lea si, mul_array
+[ 322]    0465: BA EA 00                              lea dx, result_msg
+[ 323]    0468: E8 3A 00                              call output_string
+[ 324]    046B: C7 06 00 00 00 00                     mov column_counter, 0000h
+[ 325]    0471:                                       output_mul_maximum_loop:
+[ 326]    0471: 3B 1C                                 cmp bx, [si]
+[ 327]    0473: 74 12                                 je output_column
+[ 328]    0475:                                       output_mul_maximum_next:
+[ 329]    0475: 83 C6 02                              add si, 2 ; 2 - size of number
+[ 330]    0478: FF 06 00 00                           inc column_counter
+[ 331]    047C: 8B 0E 00 00                           mov cx, column_counter
+[ 332]    0480: 3B 0E 06 00                           cmp cx, columns_count
+[ 333]    0484: 75 EB                                 jne output_mul_maximum_loop
+[ 334]    0486: C3                                    ret
+[ 335]        :                                       output_mul_maximum endp
+[ 336]        :                                       
+[ 337]    0487:                                       output_column:
+[ 338]    0487: A1 00 00                              mov ax, column_counter
+[ 339]    048A: BF A0 00                              lea di, string_of_numbers[2]
+[ 340]    048D: E8 48 FE                              call int_to_string
+[ 341]        :                                       
+[ 342]    0490: BA A0 00                              lea dx, string_of_numbers[2]
+[ 343]    0493: E8 0F 00                              call output_string
+[ 344]    0496: BA 0F 01                              lea dx, space
+[ 345]    0499: E8 09 00                              call output_string
+[ 346]    049C: EB D7                                 jmp output_mul_maximum_next
+[ 347]        :                                       
+[ 348]    049E:                                       output_new_line proc
+[ 349]    049E: BA 0C 01                              lea dx, new_line
+[ 350]    04A1: E8 01 00                              call output_string
+[ 351]    04A4: C3                                    ret
+[ 352]        :                                       output_new_line endp
+[ 353]        :                                       
+[ 354]    04A5:                                       output_string proc
+[ 355]    04A5: B4 09                                 mov ah, 09h
+[ 356]    04A7: CD 21                                 int 21h
+[ 357]    04A9: C3                                    ret
+[ 358]        :                                       output_string endp
+[ 359]        :                                       
+[ 360]    04AA:                                       input_string proc
+[ 361]    04AA: B4 0A                                 mov ah, 0Ah
+[ 362]    04AC: CD 21                                 int 21h
+[ 363]    04AE: C3                                    ret
+[ 364]        :                                       input_string endp
+[ 365]        :                                       
+[ 366]        :                                       end start
+[ 367]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: AF      -   bytes on last page (l.byte)
+0003: 00      -   bytes on last page (h.byte)
+0004: 04      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 00      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 01      -   SP - stack pointer (h.byte)
+0012: F8      -   check sum (l.byte)
+0013: 4F      -   check sum (h.byte)
+0014: 00      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 22      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 01      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 22      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================
