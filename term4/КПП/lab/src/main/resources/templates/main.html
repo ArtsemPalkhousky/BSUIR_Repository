@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="UTF-8">
+    <title>TriangleCalculations</title>
+</head>
+<body>
+
+<p>Common Triangle CALCULATOR</p>
+
+
+<form action = "#" th:action="@{/}" th:object="${object}"  method="post">
+    <p>Введите первую сторону
+        <label>
+            <input type="number" th:field="*{firstSide}"/>
+        </label>
+    </p>
+
+    <p>Введите вторую сторону
+        <label>
+            <input type="number" th:field="*{secondSide}"/>
+        </label>
+    </p>
+
+    <p>Введите третью сторону
+        <label>
+            <input type="number" th:field="*{thirdSide}"/>
+        </label>
+    </p>
+
+    <p>Периметр треугольника:
+        <span style="color:blueviolet" th:text="*{resultPerimeter}">  </span>
+    </p>
+
+    <p>Площадь треугольника:
+        <span style="color:blueviolet" th:text="*{resultSquare}">  </span>
+    </p>
+
+
+    <button type = "submit" name = "action" th:value = "submit" th:text = "Посчитать"> </button>
+    <button type = "submit" name = "action" th:value = "reset"  th:text = "Очистить"> </button>
+
+    <div th:each = "objRes : ${objects}">
+        <p> A:
+            <span th:text = "${objRes.getFirstSide()}"></span>
+            B:
+            <span th:text = "${objRes.getSecondSide()}"></span>
+            C:
+            <span th:text = "${objRes.getThirdSide()}"></span>
+            Результаты:
+            <span th:text = "${objRes.getResultPerimeter()}"></span>
+            <span th:text = "${objRes.getResultSquare()}"></span>
+        </p>
+    </div>
+
+</form>
+</body>
+</html>
