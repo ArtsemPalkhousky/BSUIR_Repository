@@ -52,7 +52,7 @@
 
 ### <a href="term5 (missed)">5th semester (missed)</a>
 
-### <a href="term6 (distance)">6th semester</a>
+### <a href="term6 (distance)">6th semester (distance)</a>
 <div>
 <ul> 
  <li><a href="term6 (distance)/БД_DataBases">БД</a> (Databases) - (Калабухов Е.В. / Куприянова Д.В.)</li>
@@ -61,3 +61,5 @@
  <li><a href="term6 (distance)/ЭК_Economics&SociologyModules/Экономика_Economics">Экономика</a> (Economics) - (Наганова Т.Е.)</li>
 </ul>
 </div>
+
+### <a href="term7 (distance)">7th semester (distance)</a>
