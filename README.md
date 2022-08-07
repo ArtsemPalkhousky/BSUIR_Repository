@@ -52,12 +52,12 @@
 
 ### <a href="term5 (missed)">5th semester (missed)</a>
 
-### <a href="term6">6th semester</a>
+### <a href="term6 (distance)">6th semester</a>
 <div>
 <ul> 
- <li><a href="term6/БД_DataBases">БД</a> (Databases) - (Калабухов Е.В. / Куприянова Д.В.)</li>
- <li><a href="term6/ОЗИ_BasicsOfInformationSecuirity">ОЗИ</a> (BasicsOfInformationSecuirity) - (Тимофеев А.М.)</li>
- <li><a href="term6/ЭК_Economics&SociologyModules/Социология_Sociology">Социология</a> (Sociology) - (Качалов И.Л.)</li>
- <li><a href="term6/ЭК_Economics&SociologyModules/Экономика_Economics">Экономика</a> (Economics) - (Наганова Т.Е.)</li>
+ <li><a href="term6 (distance)/БД_DataBases">БД</a> (Databases) - (Калабухов Е.В. / Куприянова Д.В.)</li>
+ <li><a href="term6 (distance)/ОЗИ_BasicsOfInformationSecuirity">ОЗИ</a> (BasicsOfInformationSecuirity) - (Тимофеев А.М.)</li>
+ <li><a href="term6 (distance)/ЭК_Economics&SociologyModules/Социология_Sociology">Социология</a> (Sociology) - (Качалов И.Л.)</li>
+ <li><a href="term6 (distance)/ЭК_Economics&SociologyModules/Экономика_Economics">Экономика</a> (Economics) - (Наганова Т.Е.)</li>
 </ul>
 </div>
