@@ -12,7 +12,7 @@
 ### First semester
 <div>
 <ul> 
- <li><a href="term1/AНГЛ_English">Английский</a> (English) - (Ладыженко М. В.)</li>
+ <li><a href="term1/АНГЛ_English">Английский</a> (English) - (Ладыженко М. В.)</li>
  <li><a href="term1/ИКГ_IngenericComputerGraphics">ИКГ</a> (IngenericComputerGraphics) - (Вышинский Н. В.)</li>
  <li><a href="term1/ОАИП_BasicsOfAlgorithmics&Programming">ОАИП</a> (BasicsOfAlgorithmics&Programming) - (Луцик Ю. А.)</li>
 </ul>
