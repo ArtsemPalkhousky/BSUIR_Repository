@@ -1,5 +1,4 @@
-<h1 align="center"> Hi !<img src="https://github.com/blackcater/blackcater/raw/main/images/Hi.gif" height="32"/> Here's my University Repository
-</h1>
+<h1 align="center"> Hi !<img src="https://github.com/blackcater/blackcater/raw/main/images/Hi.gif" height="32"/> Here's my University Repository </h1>
 <h3 align="center">That includes all my work during education <br> in Belarusian State University of Informatics and Radioelectronics</h3>
 <h4 align="right"> Programs, snippets, materials, schemas and etc. <br>
  Wish you luck in steeling something that may help you!!!</h4>
@@ -10,5 +9,12 @@
 
 ## Speciality - Computers systems and networks <br> Вычислительные машины системы и сети
 
-### 1 Term
-####
+### First semester
+<div>
+<ul> 
+ <li><a href="term1/AНГЛ_English">Английский</a> (English) - (Ладыженко М. В.)</li>
+ <li><a href="term1/ИКГ_IngenericComputerGraphics">ИКГ</a> (IngenericComputerGraphics) - (Вышинский Н. В.)</li>
+ <li><a href="term1/ОАИП_BasicsOfAlgorithmics&Programming">ОАИП</a> (BasicsOfAlgorithmics&Programming) - (Луцик Ю. А.)</li>
+</ul>
+</div>
+
