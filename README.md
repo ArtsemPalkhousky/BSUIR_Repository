@@ -9,7 +9,7 @@
 
 ## Speciality - Computers systems and networks <br> Вычислительные машины системы и сети (ВМСИС)
 
-### First semester
+### <a href="term1">1st semester</a>
 <div>
 <ul> 
  <li><a href="term1/АНГЛ_English">Английский</a> (English) - (Ладыженко М.В.)</li>
@@ -18,7 +18,7 @@
 </ul>
 </div>
 
-### Second semester
+### <a href="term2">2nd semester</a>
 <div>
 <ul> 
  <li><a href="term2/АиЛОВТ_Аrcitecture&LogicalBasicsоfComputers">АиЛОВТ, КП</a> (Аrcitecture&LogicalBasicsоfComputers) - (Луцик Ю.А. / Куприянова Д.В.)</li>
@@ -28,10 +28,10 @@
 </ul>
 </div>
 
-### Third semester
+### <a href="term3">3d semester</a>
 <div>
 <ul> 
- <li><a href="term3/КПИЯП_ProgramDesignAndProgrammingLanguages">КПиЯП, КП</a> (ProgramDesignAndProgrammingLanguages) - (Луцик Ю.А. / Ковальчук А.М.)</li>
+ <li><a href="term3/КПИЯП_ProgramDesignAndProgrammingLanguages">КПиЯП, КП</a> (ProgramDesignAndProgrammingLanguages) - (Калабухов Е.В. / Ковальчук А.М.)</li>
  <li><a href="term3/МАТЕМ_Mathematics">Математика</a> (Math) - (Степанова Т.С. / Василюк Л.И.)</li>
  <li><a href="term3/ТЭЦ_TheoryOfElectricalChains">ТЭЦ</a> (TheoryOfElectricalChains) - (Батюков С.В.)</li>
  <li><a href="term3/ФИЗИКА_Physics">Физика</a> (Physics) - (Ташлыкова-Бушкевич И.И. / Андрос Е.В.)</li>
@@ -40,7 +40,24 @@
 </ul>
 </div>
 
+### <a href="term4">4th semester</a>
+<div>
+<ul> 
+ <li><a href="term4/СПОВМ_ComputerSystemSoftware">СПОВМ, КП</a> (SystemSoftware) - (Поденок Л.П. / Климец А.А.)</li>
+ <li><a href="term4/АПК_PersonalComputerArchitecture">АПК</a> (PersonalComputerArchitecture) - (Одинец Д.Н.)</li>
+ <li><a href="term4/КПиЯП2_ProgramDesignAndProgrammingLanguages2">КПиЯП</a> (ProgramDesignAndProgrammingLanguages) - (Лукьянова И.В. / Оверченко А.С.)</li>
+ <li><a href="term4/КПП_CrossPlatformProgramming">КПП</a> (CrossPlatformProgramming) - (@EPAM)</li>
+</ul>
+</div>
 
+### <a href="term5 (missed)">5th semester (missed)</a>
 
-
-
+### <a href="term6">6th semester</a>
+<div>
+<ul> 
+ <li><a href="term6/БД_DataBases">БД</a> (Databases) - (Калабухов Е.В. / Куприянова Д.В.)</li>
+ <li><a href="term6/ОЗИ_BasicsOfInformationSecuirity">ОЗИ</a> (BasicsOfInformationSecuirity) - (Тимофеев А.М.)</li>
+ <li><a href="term6/ЭК_Economics&SociologyModules/Социология_Sociology">Социология</a> (Sociology) - (Качалов И.Л.)</li>
+ <li><a href="term6/ЭК_Economics&SociologyModules/Экономика_Economics">Экономика</a> (Economics) - (Наганова Т.Е.)</li>
+</ul>
+</div>
