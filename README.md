@@ -69,3 +69,5 @@
  <li><a href="term7 (distance)/ТОКС_TheoreticalBasicsOfComputerNetworks">ТОКС</a> (BasicsOfComputerNetworks) - (Одинец Д.И.)</li>
 </ul>
 </div>
+
+### <a href="term8 (distance)">8th semester (distance)</a>
