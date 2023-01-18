@@ -64,7 +64,7 @@
 ### <a href="term7 (distance)">7th semester (distance)</a>
 <div>
 <ul> 
- <li><a href="term7 (distance)/CхемТ_Circuitry">Схемотехника</a> (Circuitry) - (Селезнев И.Л.)</li>
+ <li><a href="term7 (distance)/CхемТ_Circuitry">Схемотехника, КП</a> (Circuitry) - (Селезнев И.Л.)</li>
  <li><a href="term7 (distance)/МППиПУ_MarketingOfSoftwareProducts&ITservices">Маркетинг</a> (Marketing) - (Смирнов И.В.)</li>
  <li><a href="term7 (distance)/ТОКС_TheoreticalBasicsOfComputerNetworks">ТОКС</a> (BasicsOfComputerNetworks) - (Одинец Д.И.)</li>
 </ul>
