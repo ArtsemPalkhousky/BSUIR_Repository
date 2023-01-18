@@ -71,3 +71,10 @@
 </div>
 
 ### <a href="term8 (distance)">8th semester (distance)</a>
+<div>
+<ul> 
+ <li><a href="">АВП</a> (ArchitectureOfComputingProcess) - (Перцев Д.Ю.)</li>
+ <li><a href="">ЦОСиИ</a> (DigitSignalsAndImageProcessing) - (Перцев Д.Ю.)</li>
+ <li><a href="">АОКС</a> (ComputerNetworkHardware) - (Одинец Д.И.)</li>
+</ul>
+</div>
