@@ -1,7 +1,6 @@
-<h1 align="center"> Hi !<img src="https://github.com/blackcater/blackcater/raw/main/images/Hi.gif" height="32"/> Here's my University Repository </h1>
-<h3 align="center">That includes all my work during education <br> in Belarusian State University of Informatics and Radioelectronics</h3>
-<h4 align="right"> Programs, snippets, materials, schemas and etc. <br>
- Wish you luck in steeling something that may help you!!!</h4>
+<h1 align="center"> Hi !<img src="https://github.com/blackcater/blackcater/raw/main/images/Hi.gif" height="32"/> This is my University Repository </h1>
+<h3 align="center">That includes all my works during education <br> in Belarusian State University of Informatics and Radioelectronics</h3>
+<h4 align="right"> Programs, snippets, materials, schemas and etc.</h4>
 
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2356ACF7&lines=BSUIR+repository+2019+-+2024)](https://git.io/typing-svg)
 
@@ -70,3 +69,5 @@
  <li><a href="term7 (distance)/ТОКС_TheoreticalBasicsOfComputerNetworks">ТОКС</a> (BasicsOfComputerNetworks) - (Одинец Д.И.)</li>
 </ul>
 </div>
+
+### <a href="term8 (distance)">8th semester (distance)</a>
