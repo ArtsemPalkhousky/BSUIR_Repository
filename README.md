@@ -73,8 +73,12 @@
 ### <a href="term8 (distance)">8th semester (distance)</a>
 <div>
 <ul> 
- <li><a href="">АВП</a> (ArchitectureOfComputingProcess) - (Перцев Д.Ю.)</li>
- <li><a href="">ЦОСиИ</a> (DigitSignalsAndImageProcessing) - (Перцев Д.Ю.)</li>
- <li><a href="">АОКС</a> (ComputerNetworkHardware) - (Одинец Д.И.)</li>
+ <li><a href="">АПВМиС</a> (АutomationOfDesigningComputers&Systems) - (Татур М.М.)</li>
+ <li><a href="">АКСИС</a> (ComputerSystems&NetworksAdministration) - (Одинец Д.И.)</li>
+ <li><a href="">АВП</a> (ArchitectureOfComputingProcessings) - (Перцев Д.Ю.)</li>
+ <li><a href="">ЦОСиИ</a> (DigitalProcessingOfSignals&Images) - (Перцев Д.Ю.)</li>
+ <li><a href="">СиФОЭВМ КП</a> (StructuralFunctionalOrganizationOfComputers) - (Кобяк И.П.)</li>
+ <li><a href="">Мод</a> (Modeling) - (Русин В.Г.)</li>
+ <li><a href="">ОБиПвИТ</a> (BasicsOfBusiness&LawInIT) - (Русин В.Г.)</li>
 </ul>
 </div>
