@@ -1,0 +1,27 @@
+c:\users\daeva\documents\visual studio 2012\Projects\COSII_Lab1\COSII_Lab1\bin\Debug\COSII_Lab1.exe.config
+C:\Users\Daeva\Documents\Visual Studio 2012\Projects\COSII_Lab1\COSII_Lab1\bin\Debug\COSII_Lab1.exe
+C:\Users\Daeva\Documents\Visual Studio 2012\Projects\COSII_Lab1\COSII_Lab1\bin\Debug\COSII_Lab1.pdb
+C:\Users\Daeva\Documents\Visual Studio 2012\Projects\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.csprojResolveAssemblyReference.cache
+C:\Users\Daeva\Documents\Visual Studio 2012\Projects\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.Form1.resources
+C:\Users\Daeva\Documents\Visual Studio 2012\Projects\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.Properties.Resources.resources
+C:\Users\Daeva\Documents\Visual Studio 2012\Projects\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.csproj.GenerateResource.Cache
+C:\Users\Daeva\Documents\Visual Studio 2012\Projects\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.exe
+C:\Users\Daeva\Documents\Visual Studio 2012\Projects\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.pdb
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\bin\Debug\COSII_Lab1.exe.config
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.exe
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.pdb
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\bin\Debug\COSII_Lab1.exe
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\bin\Debug\COSII_Lab1.pdb
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.csprojResolveAssemblyReference.cache
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.Form1.resources
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.Properties.Resources.resources
+E:\Учёба\7 семестр\ЦОСиИ\Лабораторная №1\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.csproj.GenerateResource.Cache
+D:\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.csprojResolveAssemblyReference.cache
+D:\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.Form1.resources
+D:\COSII_Lab1\COSII_Lab1\obj\Debug\COSII_Lab1.csproj.GenerateResource.Cache
+D:\COSII_Lab1\COSII_Lab1\bin\Debug\lab_1.exe.config
+D:\COSII_Lab1\COSII_Lab1\bin\Debug\lab_1.exe
+D:\COSII_Lab1\COSII_Lab1\bin\Debug\lab_1.pdb
+D:\COSII_Lab1\COSII_Lab1\obj\Debug\lab_1.Properties.Resources.resources
+D:\COSII_Lab1\COSII_Lab1\obj\Debug\lab_1.exe
+D:\COSII_Lab1\COSII_Lab1\obj\Debug\lab_1.pdb

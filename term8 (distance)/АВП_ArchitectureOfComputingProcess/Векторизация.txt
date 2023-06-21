@@ -1,0 +1,131 @@
+#include <iostream>
+#include <iomanip>
+#include <Windows.h>
+#include <time.h>
+#include <random>
+#include <emmintrin.h>
+#include <immintrin.h>
+#include <chrono>
+#include <numeric>
+
+
+using namespace std;
+
+#define L_value 500
+#define N_value 16
+#define M_value 500
+#define l_value 80
+#define n_value 8
+#define m_value 80
+
+float matrixA[L_value][M_value][l_value][m_value];
+float matrixB[M_value][N_value][m_value][n_value];
+float matrixC_notVectorized[L_value][N_value][l_value][n_value];
+float matrixC_vectorized[L_value][N_value][l_value][n_value];
+float matrixC_SSE[L_value][N_value][l_value][n_value];
+
+bool checkEquality();
+float matrixVectorizedCalculation(float matrix[L_value][N_value][l_value][n_value], float matrix2[L_value][M_value][l_value][m_value], float matrix3[M_value][N_value][m_value][n_value]);
+float matrixNotVectorizedCalculation(float matrix[L_value][N_value][l_value][n_value], float matrix2[L_value][M_value][l_value][m_value], float matrix3[M_value][N_value][m_value][n_value]);
+float matrixSSECalculation(float matrix[L_value][N_value][l_value][n_value], float matrix2[L_value][M_value][l_value][m_value], float matrix3[M_value][N_value][m_value][n_value]);
+
+void main()
+{
+	srand(time(NULL));
+	for (int a = 0; a < L_value; a++)
+		for (int b = 0; b < M_value; b++)
+			for (int c = 0; c < l_value; c++)
+				for (int d = 0; d < m_value; d++)
+					matrixA[a][b][c][d] = rand() % 10;
+	for (int a = 0; a < M_value; a++)
+		for (int b = 0; b < N_value; b++)
+			for (int c = 0; c < m_value; c++)
+				for (int d = 0; d < n_value; d++)
+					matrixB[a][b][c][d] = rand() % 10;
+
+
+
+	matrixVectorizedCalculation(matrixC_vectorized, matrixA, matrixB);
+	matrixNotVectorizedCalculation(matrixC_notVectorized, matrixA, matrixB);
+
+	for (int a = 0; a < L_value; a++)
+		for (int b = 0; b < N_value; b++)
+			for (int c = 0; c < l_value; c++)
+				for (int d = 0; d < n_value; d++)
+					matrixC_SSE[a][b][c][d] = 0;
+
+	matrixSSECalculation(matrixC_SSE, matrixA, matrixB);
+
+	if (checkEquality())
+		cout << "matrices are equal" << endl;
+	else
+		cout << "matrices are not equal" << endl;
+
+
+}
+
+
+bool checkEquality()
+{
+	for (int a = 0; a < L_value; a++)
+		for (int b = 0; b < N_value; b++)
+			for (int c = 0; c < l_value; c++)
+				for (int d = 0; d < n_value; d++)
+					if (matrixC_vectorized[a][b][c][d] != matrixC_SSE[a][b][c][d] || matrixC_vectorized[a][b][c][d] != matrixC_notVectorized[a][b][c][d] || matrixC_notVectorized[a][b][c][d] != matrixC_SSE[a][b][c][d])
+						return false;
+	return true;
+}
+
+float matrixVectorizedCalculation(float matrix[L_value][N_value][l_value][n_value], float matrix2[L_value][M_value][l_value][m_value], float matrix3[M_value][N_value][m_value][n_value])
+{
+	auto start = std::chrono::high_resolution_clock::now();
+	for (int a = 0; a < L_value; a++)
+		for (int b = 0; b < M_value; b++)
+			for (int c = 0; c < N_value; c++)
+				for (int d = 0; d < l_value; d++)
+					for (int e = 0; e < m_value; e++)
+						for (int f = 0; f < n_value; f++)
+							matrix[a][c][d][f] = matrix2[a][b][d][e] * matrix3[b][c][e][f];
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> diff = end - start;
+	cout << "Vectorized: " << std::setw(9) << diff.count() << endl;
+	return matrix[L_value][N_value][l_value][n_value];
+}
+
+float matrixNotVectorizedCalculation(float matrix[L_value][N_value][l_value][n_value], float matrix2[L_value][M_value][l_value][m_value], float matrix3[M_value][N_value][m_value][n_value])
+{
+	auto start = std::chrono::high_resolution_clock::now();
+	for (int a = 0; a < L_value; a++)
+		for (int b = 0; b < M_value; b++)
+			for (int c = 0; c < N_value; c++)
+				for (int d = 0; d < l_value; d++)
+					for (int e = 0; e < m_value; e++)
+						__pragma(loop(no_vector))
+						for (int f = 0; f < n_value; f++)
+							matrix[a][c][d][f] = matrix2[a][b][d][e] * matrix3[b][c][e][f];
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> diff = end - start;
+	cout << "Not Vectorized: " << std::setw(9) << diff.count() << endl;
+	return matrix[L_value][N_value][l_value][n_value];
+}
+
+float matrixSSECalculation(float matrix[L_value][N_value][l_value][n_value], float matrix2[L_value][M_value][l_value][m_value], float matrix3[M_value][N_value][m_value][n_value])
+{
+	auto start3 = std::chrono::high_resolution_clock::now();
+	for (int a = 0; a < L_value; a++)
+		for (int b = 0; b < M_value; b++)
+			for (int c = 0; c < N_value; c++)
+				for (int d = 0; d < l_value; d++)
+					for (int e = 0; e < m_value; e++)
+						for (int f = 0; f < n_value; f += 8) {
+							__m256 x = _mm256_set1_ps(matrix2[a][b][d][e]);
+							__m256 y = _mm256_load_ps(&matrix3[b][c][e][f]);
+							__m256 z = _mm256_mul_ps(x, y);
+							_mm256_store_ps(&matrix[a][c][d][f], z);
+						}
+	auto end3 = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> diff3 = end3 - start3;
+	std::cout << "SSEVectorized" << std::setw(9) << diff3.count() << endl;
+	return matrix[L_value][N_value][l_value][n_value];
+}
+
