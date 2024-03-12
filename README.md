@@ -49,7 +49,12 @@
 </ul>
 </div>
 
-### <a href="term5 (missed)">5th semester (missed)</a>
+### <a href="term5">5th semester</a>
+<div>
+<ul>
+ missed
+</ul>
+</div>
 
 ### <a href="term6 (distance)">6th semester (distance)</a>
 <div>
@@ -93,5 +98,14 @@
  <li><a href="">МПСиС</a> (MicroprocessorTools&Systems) - (Селезнев И.Л.)</li>
  <li><a href="">СХД</a> (DataStorageSystems) - (Фролов И.И./Куприянова Д.В.)</li>
  <li><a href="">Производственная Практика</a> (Internship) - (ООО)</li>
+</ul>
+</div>
+
+### <a href="term10 (distance)">10th semester (distance)</a>
+<div>
+<ul> 
+ <li><a href="">СПОЛКС</a> (SystemSoftwareOfLocalAreaNetworks) - (Перцев Д.Ю.)</li>
+ <li><a href="">СА</a> (SystemAnalys) - (Никульшин Б.В./Селезнев И.Л.)</li>
+ <li><a href="">Преддипломная Практика</a> (UndergraduateIntership) - (ООО)</li>
 </ul>
 </div>
