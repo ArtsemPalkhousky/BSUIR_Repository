@@ -82,3 +82,16 @@
  <li><a href="">ОБиПвИТ</a> (BasicsOfBusiness&LawInIT) - (Русин В.Г.)</li>
 </ul>
 </div>
+
+### <a href="term9 (distance)">9th semester (distance)</a>
+<div>
+<ul> 
+ <li><a href="">СПОЛКС</a> (SystemSoftwareOfLocalAreaNetworks) - (Перцев Д.Ю.)</li>
+ <li><a href="">ЦОСиИ</a> (DigitalProcessingOfSignals&Images) - (Перцев Д.Ю.)</li>
+ <li><a href="">АОКС КП</a> (ComputerNetworkHardware) - (Смирнов Ю.В./Глецевич И.И.)</li>
+ <li><a href="">КиДСВТ</a> (Control&DiagnosticsOfComputers) - (Татур М.М.)</li>
+ <li><a href="">МПСиС</a> (MicroprocessorTools&Systems) - (Селезнев И.Л.)</li>
+ <li><a href="">СХД</a> (DataStorageSystems) - (Фролов И.И./Куприянова Д.В.)</li>
+ <li><a href="">Производственная Практика</a> (Internship) - (ООО)</li>
+</ul>
+</div>
